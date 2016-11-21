@@ -1,5 +1,7 @@
 <?php
 
+echo "<div style='position: fixed; width: 500px; height: 500px; top: 0; left: 0; z-index: 999999; background: #fff'>In feature</div>";
+
 $feature = $variables['node']->feature;
 $options = array('return_array' => 1);
 $feature = chado_expand_var($feature, 'table', 'featureprop', $options);
