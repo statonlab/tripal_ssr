@@ -1,6 +1,5 @@
+<div style="position: fixed; top: 0; left: 0; width: 100px; height: auto;">This is a test</div>
 <?php
-
-kpr($variables);
 
 if(property_exists($variables['node'], 'feature')) {
   $feature = $variables['node']->feature;

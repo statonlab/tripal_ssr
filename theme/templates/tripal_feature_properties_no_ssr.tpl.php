@@ -1,3 +1,4 @@
+<div style="position: fixed; top: 0; left: 0; width: 100px; height: auto;">This is a test</div>
 <?php
 $feature = $variables['node']->feature;
 $options = array('return_array' => 1);
