@@ -67,7 +67,7 @@ function tripal_ssr_node_view($node, $view_mode, $langcode) {
       } */
   }
 
-  echo "<div style='position: fixed; width: 500px; height: 500px; top: 0; left: 0; z-index: 999999; background: #fff'>In feature</div>";
+  // testing: echo "<div style='position: fixed; width: 500px; height: 500px; top: 0; left: 0; z-index: 999999; background: #fff'>In feature</div>";
 }
 
 function tripal_ssr_theme($existing, $type, $theme, $path) {
