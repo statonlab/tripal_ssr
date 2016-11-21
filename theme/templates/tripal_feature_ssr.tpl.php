@@ -1,4 +1,7 @@
 <?php
+
+kpr($variables);
+
 if(property_exists($variables['node'], 'feature')) {
   $feature = $variables['node']->feature;
   $feature = chado_expand_var($feature, 'table', 'featureprop', array('return_array' => 1));
