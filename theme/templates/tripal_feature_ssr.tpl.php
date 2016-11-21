@@ -1,7 +1,5 @@
 <?php
 
-echo "<div style='position: fixed; width: 500px; height: 500px; top: 0; left: 0; z-index: 999999; background: #fff'>In feature</div>";
-
 if(property_exists($variables['node'], 'feature')) {
   $feature = $variables['node']->feature;
   $feature = chado_expand_var($feature, 'table', 'featureprop', array('return_array' => 1));
