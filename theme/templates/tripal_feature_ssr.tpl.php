@@ -1,4 +1,5 @@
 <?php
+ echo "<div style='position: fixed; width: 200px; height: 200px; top: 0; left: 0; z-index: 999999; background: #fff'>In SSR</div>";
 
 if(property_exists($variables['node'], 'feature')) {
   $feature = $variables['node']->feature;
