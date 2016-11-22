@@ -76,6 +76,8 @@ function tripal_ssr_node_view($node, $view_mode, $langcode = NULL) {
  */
 function tripal_ssr_view($node, $view_mode, $langcode = NULL) {
 
+  kpr($node);
+
   switch ($node->type) {
     case 'chado_feature':
       if ($view_mode == 'full') {
