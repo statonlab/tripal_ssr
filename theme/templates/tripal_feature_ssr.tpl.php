@@ -1,4 +1,3 @@
-<div style="position: fixed; top: 0; left: 0; width: 100px; height: auto; z-index: 99999999; background: #fff;">This is a test</div>
 <?php
 
 if(property_exists($variables['node'], 'feature')) {
