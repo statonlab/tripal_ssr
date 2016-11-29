@@ -70,7 +70,7 @@ function tripal_ssr_install() {
 
   $mv = array (
     'description' => 'Stores features that have associated SSR data',
-    'table' => 'feature_ssr_mview',
+    'table' => 'chado.feature_ssr_mview',
     'fields' => array (
       'analysis_id' => array (
         'type' => 'int',
