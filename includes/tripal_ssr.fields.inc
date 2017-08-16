@@ -34,20 +34,14 @@
  *   it doesn't already exist. To trigger create of fields when developing call
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
-function tripal_ssr_instance_bundle_fields_info($entity_type, $bundle) {
+function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
     $fields = [];
-
     // Because we are expecting data housed in Chado we can use the 'data_table'
     // property of the bundle to determine if this bundle is really the one
     // we want the field to be associated with.
     if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
         // First add my term.
-        tripal_insert_cvterm([
-            'id' => 'nci:short_tandem_repeat',
-            'name' => 'SSR',
-            'cv_name' => 'nci',
-            'definition' => 'Area of repetitive DNA within the genome consisting of multiple, end-to-end copies of a short DNA sequence usually comprised of di-, tri-, or tetranucleotide repeat units.',
-        ]);
+
 
         // Then describe the field defined by that term.
         $field_name = 'nci__short_tandem_repeat';
@@ -90,7 +84,7 @@ function tripal_ssr_instance_bundle_fields_info($entity_type, $bundle) {
  *   defaults for any settings you use in your field. Each entry in this array
  *   will be used to create an instance of an already existing field.
  */
-function tripal_ssr_instance_bundle_instances_info($entity_type, $bundle) {
+function tripal_ssr_bundle_instances_info($entity_type, $bundle) {
     $instances = [];
 
     // ORGANISM.
