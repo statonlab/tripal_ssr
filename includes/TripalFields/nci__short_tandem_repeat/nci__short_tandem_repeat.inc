@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @class
+ * Purpose:
+ *
+ * Data:
+ * Assumptions:
+ */
 class nci__short_tandem_repeat extends ChadoField
 {
     // --------------------------------------------------------------------------
@@ -11,10 +18,10 @@ class nci__short_tandem_repeat extends ChadoField
     // --------------------------------------------------------------------------
 
     // The default label for this field.
-    public static $default_label = 'SSR';
+    public static $default_label = 'nci__short_tandem_repeat';
 
     // The default description for this field.
-    public static $default_description = 'SSRs';
+    public static $default_description = 'Summarizes the number of features and annotations for an organism';
 
     // The default widget for this field.
     public static $default_widget = 'nci__short_tandem_repeat_widget';
@@ -52,9 +59,9 @@ class nci__short_tandem_repeat extends ChadoField
         // The short name for the vocabulary (e.g. schema, SO, GO, PATO, etc.).
         'term_vocabulary' => 'nci',
         // The name of the term.
-        'term_name' => 'short_tandem_repeat',
+        'term_name' => 'nci__short_tandem_repeat',
         // The unique ID (i.e. accession) of the term.
-        'term_accession' => 'C13441',
+        'term_accession' => 'nci__short_tandem_repeat',
         // Set to TRUE if the site admin is not allowed to change the term
         // type, otherwise the admin can change the term mapped to a field.
         'term_fixed' => false,
@@ -111,11 +118,6 @@ class nci__short_tandem_repeat extends ChadoField
      */
     public function load($entity)
     {
-        // ChadoFields automatically load the chado column specified in the
-        // default settings above. If that is all you need then you don't even
-        // need to implement this function. However, if you need to add any
-        // additional data to be used in the display, you should add it here.
-        parent::load($entity);
+
     }
 }
-

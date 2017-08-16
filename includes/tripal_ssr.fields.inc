@@ -36,12 +36,18 @@
  */
 function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
     $fields = [];
+
     // Because we are expecting data housed in Chado we can use the 'data_table'
     // property of the bundle to determine if this bundle is really the one
     // we want the field to be associated with.
     if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
         // First add my term.
-
+        tripal_insert_cvterm([
+            'id' => 'nci:short_tandem_repeat',
+            'name' => 'short_tandem_repeat',
+            'cv_name' => 'nci',
+            'definition' => '...',
+        ]);
 
         // Then describe the field defined by that term.
         $field_name = 'nci__short_tandem_repeat';
@@ -97,8 +103,8 @@ function tripal_ssr_bundle_instances_info($entity_type, $bundle) {
             'field_name' => $field_name,
             'entity_type' => $entity_type,
             'bundle' => $bundle->name,
-            'label' => 'SSR',
-            'description' => 'Provides a link to the organism\'s SSR page.',
+            'label' => 'short_tandem_repeat',
+            'description' => 'Provides a link to the organism\'s JBrowse page.',
             'required' => FALSE,
             'settings' => [
                 'auto_attach' => TRUE,
