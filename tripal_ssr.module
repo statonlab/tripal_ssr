@@ -1,5 +1,8 @@
 <?php
 
+include drupal_get_path('module', 'tripal_ssr') . '/includes/tripal_ssr_fields.inc';
+
+
 /**
  * Implements hook_node_view().
  *
