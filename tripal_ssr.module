@@ -1,5 +1,17 @@
 <?php
 
+include drupal_get_path('module', 'tripal_ssr') . '/includes/tripal_ssr.fields.inc';
+
+//insert the ssr cvterm and cv if necessary
+
+tripal_insert_cv('nci', 'The NCI Thesaurus is an ontology-like vocabulary that includes broad coverage of the cancer domain, including cancer related diseases, findings and abnormalities; anatomy; agents, drugs and chemicals; genes and gene products and so on. In certain areas, like cancer diseases and combination chemotherapies, it provides the most granular and consistent terminology available. It combines terminology from numerous cancer research related domains, and provides a way to integrate or link these kinds of information together through semantic relationships.');
+tripal_insert_cvterm([
+    'id' => 'nci:short_tandem_repeat',
+    'name' => 'short_tandem_repeat',
+    'cv_name' => 'nci',
+    'definition' => 'Area of repetitive DNA within the genome consisting of multiple, end-to-end copies of a short DNA sequence usually comprised of di-, tri-, or tetranucleotide repeat units.',
+]);
+
 /**
  * Implements hook_node_view().
  *
