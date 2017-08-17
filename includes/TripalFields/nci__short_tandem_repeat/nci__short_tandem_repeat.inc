@@ -118,6 +118,47 @@ class nci__short_tandem_repeat extends ChadoField
      */
     public function load($entity)
     {
-
+        $entity->{$field}['und'][0]['value'] = isset($entity->{$field}['und'][0]['chado-organism__organism_id']) ? $entity->{$field}['und'][0]['chado-organism__organism_id'] : $entity->{$field}['und'][0]['chado-feature__organism_id'];
+        $entity->{$field}['und'][0]['record'] = $this->get_ssr_organism($entity->{$field}['und'][0]['value']);
     }
+
+
+    /**
+     * Get the SSR for a given organism.
+     *
+     * @param $organism_id
+     *
+     * @return mixed
+     */
+    protected function get_ssr_organism($organism_id)
+    {
+        if (! $organism_id) {
+            return false;
+        }
+
+        $sql = 'SELECT * FROM feature_ssr_mview WHERE organism_id = :organism_id';
+        $result = chado_query($sql, [':organism_id' => $organism_id])->fetchObject();
+        return ($result);
+    }
+
+
+//    protected function get_SSR_feature($feature_id)
+//    {
+//        if (! $feature_id) {
+//            return false;
+//        }
+//
+//        //look up feature in the feature_ssr_mview table.
+//
+//        $sql = "
+//    SELECT
+//     FROM {featureprop} FP
+//     WHERE feature_id ==
+//   ";
+//
+//        $flresults = chado_query($sql, [':feature_id' => $feature_id]);
+//    }
+//
+
 }
+

@@ -41,15 +41,8 @@ function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
     // property of the bundle to determine if this bundle is really the one
     // we want the field to be associated with.
     if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
-        // First add my term.
-        tripal_insert_cvterm([
-            'id' => 'nci:short_tandem_repeat',
-            'name' => 'short_tandem_repeat',
-            'cv_name' => 'nci',
-            'definition' => '...',
-        ]);
 
-        // Then describe the field defined by that term.
+        //Describe the field
         $field_name = 'nci__short_tandem_repeat';
         $field_type = 'nci__short_tandem_repeat';
         $fields[$field_name] = [
