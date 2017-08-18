@@ -61,7 +61,7 @@ class so__microsatellite extends ChadoField
         // The name of the term.
         'term_name' => 'so__microsatellite',
         // The unique ID (i.e. accession) of the term.
-        'term_accession' => 'so__microsatellite',
+        'term_accession' => 'microsatellite',
         // Set to TRUE if the site admin is not allowed to change the term
         // type, otherwise the admin can change the term mapped to a field.
         'term_fixed' => false,
@@ -118,10 +118,18 @@ class so__microsatellite extends ChadoField
      */
     public function load($entity)
     {
+        parent::load($entity);
         $field = 'so__microsatellite';
         $entity->{$field}['und'][0]['value'] = isset($entity->{$field}['und'][0]['chado-organism__organism_id']) ? $entity->{$field}['und'][0]['chado-organism__organism_id'] : $entity->{$field}['und'][0]['chado-feature__organism_id'];
+
+        if (isset($entity->{$field}['und'][0]['chado-organism__organism_id'])) {
+            $species = $entity->chado_record->species;
+            $genus = $entity->chado_record->genus;
+            $entity->{$field}['und'][0]['path'] = $this->create_ssr_url($genus, $species);
+        }
         $entity->{$field}['und'][0]['records'] = $this->get_ssr_organism($entity->{$field}['und'][0]['value']);
         $entity->{$field}['und'][0]['count'] = count($entity->{$field}['und'][0]['records']);
+
     }
 
     /**
@@ -138,8 +146,18 @@ class so__microsatellite extends ChadoField
         }
         $sql = 'SELECT feature_id FROM {feature_ssr_mview} WHERE organism_id = :organism_id';
         $result = chado_query($sql, [':organism_id' => $organism_id])->fetchObject();
+
         return ($result);
     }
 
+    protected function create_ssr_url($genus, $species)
+    {
+        dpm(variable_get('file_public_path', conf_path().'/files'));
+        $path = variable_get('file_public_path', conf_path().'/files')."/ssr_downloads/{$genus}_{$species}.ssr.fasta";
+        dpm($path);
+        if (file_exists($path)) {
+            return $path;
+        }
+        // print "<br><br><a href='/$path' download='{$organism_id}.ssr.fasta'>Fasta files of transcript sequences with an SSR</a><br><br>";
+    }
 }
-
