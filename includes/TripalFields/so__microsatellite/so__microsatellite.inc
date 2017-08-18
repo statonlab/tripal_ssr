@@ -7,7 +7,7 @@
  * Data:
  * Assumptions:
  */
-class nci__short_tandem_repeat extends ChadoField
+class so__microsatellite extends ChadoField
 {
     // --------------------------------------------------------------------------
     //                     EDITABLE STATIC CONSTANTS
@@ -18,16 +18,16 @@ class nci__short_tandem_repeat extends ChadoField
     // --------------------------------------------------------------------------
 
     // The default label for this field.
-    public static $default_label = 'nci__short_tandem_repeat';
+    public static $default_label = 'so__microsatellite';
 
     // The default description for this field.
-    public static $default_description = 'Summarizes the number of features and annotations for an organism';
+    public static $default_description = 'Counts and links the SSR (microsatellite) containing features for an organism.';
 
     // The default widget for this field.
-    public static $default_widget = 'nci__short_tandem_repeat_widget';
+    public static $default_widget = 'so__microsatellite_widget';
 
     // The default formatter for this field.
-    public static $default_formatter = 'nci__short_tandem_repeat_formatter';
+    public static $default_formatter = 'so__microsatellite_formatter';
 
     // The module that manages this field.
     public static $module = 'tripal_ssr';
@@ -57,11 +57,11 @@ class nci__short_tandem_repeat extends ChadoField
     // required for all TripalFields.
     public static $default_instance_settings = [
         // The short name for the vocabulary (e.g. schema, SO, GO, PATO, etc.).
-        'term_vocabulary' => 'nci',
+        'term_vocabulary' => 'so',
         // The name of the term.
-        'term_name' => 'nci__short_tandem_repeat',
+        'term_name' => 'so__microsatellite',
         // The unique ID (i.e. accession) of the term.
-        'term_accession' => 'nci__short_tandem_repeat',
+        'term_accession' => 'so__microsatellite',
         // Set to TRUE if the site admin is not allowed to change the term
         // type, otherwise the admin can change the term mapped to a field.
         'term_fixed' => false,
@@ -118,12 +118,11 @@ class nci__short_tandem_repeat extends ChadoField
      */
     public function load($entity)
     {
-        $field = 'nci__short_tandem_repeat';
+        $field = 'so__microsatellite';
         $entity->{$field}['und'][0]['value'] = isset($entity->{$field}['und'][0]['chado-organism__organism_id']) ? $entity->{$field}['und'][0]['chado-organism__organism_id'] : $entity->{$field}['und'][0]['chado-feature__organism_id'];
         $entity->{$field}['und'][0]['records'] = $this->get_ssr_organism($entity->{$field}['und'][0]['value']);
-        dpm($entity);
+        $entity->{$field}['und'][0]['count'] = count($entity->{$field}['und'][0]['records']);
     }
-
 
     /**
      * Get the SSR for a given organism.
@@ -137,32 +136,10 @@ class nci__short_tandem_repeat extends ChadoField
         if (! $organism_id) {
             return false;
         }
-
         $sql = 'SELECT feature_id FROM {feature_ssr_mview} WHERE organism_id = :organism_id';
         $result = chado_query($sql, [':organism_id' => $organism_id])->fetchObject();
-        dpm($result);
         return ($result);
     }
-
-
-
-//    protected function get_SSR_feature($feature_id)
-//    {
-//        if (! $feature_id) {
-//            return false;
-//        }
-//
-//        //look up feature in the feature_ssr_mview table.
-//
-//        $sql = "
-//    SELECT
-//     FROM {featureprop} FP
-//     WHERE feature_id ==
-//   ";
-//
-//        $flresults = chado_query($sql, [':feature_id' => $feature_id]);
-//    }
-//
 
 }
 
