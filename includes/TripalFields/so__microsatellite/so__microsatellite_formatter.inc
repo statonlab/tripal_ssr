@@ -88,9 +88,6 @@ class so__microsatellite_formatter extends ChadoFieldFormatter
         $count = $entity->so__microsatellite['und'][0]['count'];
         $path = $entity->so__microsatellite['und'][0]['path'];
 
-        dpm('PATH: '. $path);
-        dpm($entity->so__microsatellite);
-
         $message = 'There are no SSRs associated with this organism.';
         if ($count > 0) {
             $message = 'There are <a href="'.$path.'">'.$count.' SSRs annotated in this organism.</a>';
