@@ -128,8 +128,7 @@ class so__microsatellite extends ChadoField
             $entity->{$field}['und'][0]['path'] = $this->create_ssr_url($genus, $species);
         }
         $entity->{$field}['und'][0]['records'] = $this->get_ssr_organism($entity->{$field}['und'][0]['value']);
-        $entity->{$field}['und'][0]['count'] = count($entity->{$field}['und'][0]['records']);
-
+        $entity->{$field}['und'][0]['count'] = is_array($entity->{$field}['und'][0]['records']) ? count($entity->{$field}['und'][0]['records']) : 0;
     }
 
     /**
@@ -144,20 +143,20 @@ class so__microsatellite extends ChadoField
         if (! $organism_id) {
             return false;
         }
-        $sql = 'SELECT feature_id FROM {feature_ssr_mview} WHERE organism_id = :organism_id';
-        $result = chado_query($sql, [':organism_id' => $organism_id])->fetchObject();
 
-        return ($result);
+        $sql = 'SELECT feature_id FROM {feature_ssr_mview} WHERE organism_id = :organism_id';
+        $result = chado_query($sql, [':organism_id' => $organism_id])->fetchAssoc();
+
+        return $result;
     }
 
     protected function create_ssr_url($genus, $species)
     {
-        dpm(variable_get('file_public_path', conf_path().'/files'));
         $path = variable_get('file_public_path', conf_path().'/files')."/ssr_downloads/{$genus}_{$species}.ssr.fasta";
-        dpm($path);
         if (file_exists($path)) {
             return $path;
         }
-        // print "<br><br><a href='/$path' download='{$organism_id}.ssr.fasta'>Fasta files of transcript sequences with an SSR</a><br><br>";
+
+        //return null;
     }
 }
