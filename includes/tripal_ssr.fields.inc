@@ -122,4 +122,3 @@ function tripal_ssr_bundle_instances_info($entity_type, $bundle) {
 
     return $instances;
 }
-
