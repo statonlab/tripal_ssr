@@ -152,11 +152,20 @@ class so__microsatellite extends ChadoField
 
     protected function create_ssr_url($genus, $species)
     {
-        $path = variable_get('file_public_path', conf_path().'/files')."/ssr_downloads/{$genus}_{$species}.ssr.fasta";
-        if (file_exists($path)) {
-            return $path;
-        }
-
-        //return null;
+        $path = "ssr-features/{$genus}/{$species}";
+        return($path);
     }
+
+
+    //below function create a link to the file download.  For now, let's link to the view instead.
+
+    //protected function create_ssr_url($genus, $species)
+    //{
+    //    $path = variable_get('file_public_path', conf_path().'/files')."/ssr_downloads/{$genus}_{$species}.ssr.fasta";
+    //    if (file_exists($path)) {
+    //        return $path;
+    //    }
+    //
+    //    //return null;
+    //}
 }
