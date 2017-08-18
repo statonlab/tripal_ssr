@@ -37,14 +37,21 @@
 function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
     $fields = [];
 
+    tripal_insert_cvterm([
+        'id' => 'so:microsatellite',
+        'name' => 'microsatellite',
+        'cv_name' => 'so',
+        'definition' => 'microsatellite!',
+    ]);
+
     // Because we are expecting data housed in Chado we can use the 'data_table'
     // property of the bundle to determine if this bundle is really the one
     // we want the field to be associated with.
     if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
 
         //Describe the field
-        $field_name = 'nci__short_tandem_repeat';
-        $field_type = 'nci__short_tandem_repeat';
+        $field_name = 'so__microsatellite';
+        $field_type = 'so__microsatellite';
         $fields[$field_name] = [
             'field_name' => $field_name,
             'type' => $field_type,
@@ -89,15 +96,15 @@ function tripal_ssr_bundle_instances_info($entity_type, $bundle) {
     // ORGANISM.
     //===============
     if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
-        $field_name = 'nci__short_tandem_repeat';
-        $field_type = 'nci__short_tandem_repeat';
+        $field_name = 'so__microsatellite';
+        $field_type = 'so__microsatellite';
         $field_table = $bundle->data_table;
         $instances[$field_name] = [
             'field_name' => $field_name,
             'entity_type' => $entity_type,
             'bundle' => $bundle->name,
-            'label' => 'short_tandem_repeat',
-            'description' => 'Provides a link to the organism\'s JBrowse page.',
+            'label' => 'microsatellite',
+            'description' => 'Microsatellite (SSR)',
             'required' => FALSE,
             'settings' => [
                 'auto_attach' => TRUE,
@@ -106,7 +113,7 @@ function tripal_ssr_bundle_instances_info($entity_type, $bundle) {
                 'base_table' => $field_table,
             ],
             'widget' => [
-                'type' => 'nci__short_tandem_repeat_widget',
+                'type' => 'so__microsatellite_widget',
                 'settings' => [],
             ],
             'display' => [
@@ -114,7 +121,7 @@ function tripal_ssr_bundle_instances_info($entity_type, $bundle) {
                     'label' => 'hidden',
                     'region' => 'Right',
                     'settings' => [],
-                    'type' => 'nci__short_tandem_repeat_formatter',
+                    'type' => 'so__microsatellite_formatter',
                 ],
             ],
         ];
