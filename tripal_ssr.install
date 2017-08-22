@@ -1,132 +1,130 @@
 <?php
 
-
 function tripal_ssr_install() {
-
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_motif',
     'def' => 'An SSR motif.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_repeats',
     'def' => 'The number of repeats in an SSR.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_start',
     'def' => 'The start of an SSR.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_end',
     'def' => 'The end of an SSR.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_forward_primer',
     'def' => 'The forward primer of an SSR.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_reverse_primer',
     'def' => 'The reverse primer of an SSR.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_forward_tm',
     'def' => 'The forward melting temperature.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_reverse_tm',
     'def' => 'The reverse melting temperature.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
-  tripal_insert_cvterm(array(
+  tripal_insert_cvterm([
     'name' => 'tripal_ssr_product_size',
     'def' => 'The product size of an SSR.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
-  ));
+  ]);
 
   $view_name = 'feature_ssr_mview';
 
-  $mv = array (
+  $mv = [
     'description' => 'Stores features that have associated SSR data',
     'table' => 'feature_ssr_mview',
-    'fields' => array (
-      'analysis_id' => array (
+    'fields' => [
+      'analysis_id' => [
         'type' => 'int',
-        'not null' => false,
-      ),
-      'organism_id' => array (
+        'not null' => FALSE,
+      ],
+      'organism_id' => [
         'type' => 'int',
-        'not null' => true,
-      ),
-      'common_name' => array (
+        'not null' => TRUE,
+      ],
+      'common_name' => [
         'type' => 'varchar',
         'length' => '255',
-        'not null' => true,
-      ),
-      'genus' => array (
+        'not null' => TRUE,
+      ],
+      'genus' => [
         'type' => 'varchar',
         'length' => '255',
-        'not null' => true,
-      ),
-      'species' => array (
+        'not null' => TRUE,
+      ],
+      'species' => [
         'type' => 'varchar',
         'length' => '255',
-        'not null' => true,
-      ),
-      'feature_id' => array (
+        'not null' => TRUE,
+      ],
+      'feature_id' => [
         'type' => 'int',
-        'not null' => true,
-      ),
-      'name' => array (
+        'not null' => TRUE,
+      ],
+      'name' => [
         'type' => 'varchar',
         'length' => '255',
-        'not null' => true,
-      ),
-      'uniquename' => array (
+        'not null' => TRUE,
+      ],
+      'uniquename' => [
         'type' => 'varchar',
         'length' => '255',
-        'not null' => true,
-      ),
-      'type' => array (
+        'not null' => TRUE,
+      ],
+      'type' => [
         'type' => 'varchar',
         'length' => '255',
-        'not null' => true,
-      ),
-    ),
-    'indexes' => array (
-      'analysis_id_idx' => array (
+        'not null' => TRUE,
+      ],
+    ],
+    'indexes' => [
+      'analysis_id_idx' => [
         0 => 'analysis_id',
-      ),
-      'organism_id_idx' => array (
+      ],
+      'organism_id_idx' => [
         0 => 'organism_id',
-      ),
-      'feature_id_idx' => array (
+      ],
+      'feature_id_idx' => [
         0 => 'feature_id',
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
 
   $query = "SELECT DISTINCT
               A.analysis_id, O.organism_id, O.common_name, O.genus, O.species, F.feature_id, F.name, F.uniquename, CVTF.name
@@ -135,22 +133,10 @@ function tripal_ssr_install() {
               INNER JOIN cvterm CVTF ON F.type_id = CVTF.cvterm_id
               INNER JOIN analysisfeature AF ON F.feature_id = AF.feature_id
               INNER JOIN analysis A ON AF.analysis_id = A.analysis_id
-              INNER JOIN analysisprop AP ON A.analysis_id = AP.analysis_id
-              INNER JOIN cvterm CVTAP ON AP.type_id = CVTAP.cvterm_id 
               INNER JOIN featureprop FP ON F.feature_id = FP.feature_id
               INNER JOIN cvterm CVTFP ON FP.type_id = CVTFP.cvterm_id
             WHERE
-              CVTFP.name = 'tripal_ssr_motif' AND
-              CVTAP.name = 'analysis_unigene_name'";
-/*  $query = "SELECT
-              O.organism_id, F.feature_id, F.name, F.uniquename
-            FROM organism O
-              INNER JOIN feature F ON O.organism_id = F.organism_id
-              INNER JOIN featureprop FP ON F.feature_id = FP.feature_id
-              INNER JOIN cvterm CVT ON FP.type_id = CVT.cvterm_id
-            WHERE
-              CVT.name = 'tripal_ssr_motif'"; 
-*/
+              CVTFP.name = 'tripal_ssr_motif'";
 
   $comment = 'This materialized view is used to associate an organism_id and an analysis_id with a feature that has correspondign SSR data stored in the featureprop table.';
 
@@ -158,15 +144,13 @@ function tripal_ssr_install() {
 
   $bulk_loader_template = '{"0":{"table":"feature","record_id":"feature","fields":[{"type":"table field","title":"feature.uniquename","field":"name","required":1,"spreadsheet column":"1","exposed":0,"exposed_description":"","regex":{"pattern":["\/(.+?)_ssr.*\/"],"replace":["\\1"]}}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"1":{"table":"cvterm","record_id":"motif-cvterm","fields":[{"type":"constant","title":"motif","field":"name","required":0,"constant value":"tripal_ssr_motif","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"2":{"table":"featureprop","record_id":"motif-featureprop","fields":[{"type":"foreign key","title":"motif-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"motif-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"motif-cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"motif-featureprop.value","field":"value","required":0,"spreadsheet column":"2","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0},"4":{"table":"cvterm","record_id":"repeats-cvterm","fields":[{"type":"constant","title":"repeats-cvterm.name","field":"name","required":0,"constant value":"tripal_ssr_repeats","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"5":{"table":"featureprop","record_id":"repeats-featureprop","fields":[{"type":"foreign key","title":"repeats-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"repeats-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"repeats-cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"repeats-featureprop.value","field":"value","required":0,"spreadsheet column":"3","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0},"6":{"table":"cvterm","record_id":"start-cvterm","fields":[{"type":"constant","title":"start-cvterm.name","field":"name","required":0,"constant value":"tripal_ssr_start","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"7":{"table":"featureprop","record_id":"start-featureprop","fields":[{"type":"foreign key","title":"start-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"start-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"start-cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"start-featureprop.value","field":"value","required":0,"spreadsheet column":"4","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0},"8":{"table":"cvterm","record_id":"end-cvterm","fields":[{"type":"constant","title":"end-cvterm.name","field":"name","required":0,"constant value":"tripal_ssr_end","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"9":{"table":"featureprop","record_id":"end-featureprop","fields":[{"type":"foreign key","title":"end-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"end-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"end-cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"end-featureprop.value","field":"value","required":0,"spreadsheet column":"5","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0},"10":{"table":"cvterm","record_id":"fprimer-cvterm","fields":[{"type":"constant","title":"fprimer-cvterm.name","field":"name","required":0,"constant value":"tripal_ssr_forward_primer","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"11":{"table":"featureprop","record_id":"fprimer-featureprop","fields":[{"type":"foreign key","title":"fprimer-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"fprimer-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"fprimer-cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"fprimer-featureprop.value","field":"value","required":0,"spreadsheet column":"6","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0},"12":{"table":"cvterm","record_id":"rprimer-cvterm","fields":[{"type":"constant","title":"rprimer-cvterm.name","field":"name","required":0,"constant value":"tripal_ssr_reverse_primer","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"13":{"table":"featureprop","record_id":"rprimer-featureprop","fields":[{"type":"foreign key","title":"rprimer-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"rprimer-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"rprimer-cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"rprimer-featureprop.value","field":"value","required":0,"spreadsheet column":"7","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0},"14":{"table":"cvterm","record_id":"ftm-cvterm","fields":[{"type":"constant","title":"ftm-cvterm.name","field":"name","required":0,"constant value":"tripal_ssr_forward_tm","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"15":{"table":"featureprop","record_id":"ftm-featureprop","fields":[{"type":"foreign key","title":"ftm-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"ftm-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"ftm-cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"ftm-featureprop.value","field":"value","required":0,"spreadsheet column":"8","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0},"16":{"table":"cvterm","record_id":"rtm-cvterm","fields":[{"type":"constant","title":"rtm-cvterm.name","field":"name","required":0,"constant value":"tripal_ssr_reverse_tm","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"17":{"table":"featureprop","record_id":"rtm-featureprop","fields":[{"type":"foreign key","title":"rtm-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"rtm-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"rtm-cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"rtm-featureprop.value","field":"value","required":0,"spreadsheet column":"9","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0},"18":{"table":"cvterm","record_id":"size_cvterm","fields":[{"type":"constant","title":"size-cvterm.name","field":"name","required":0,"constant value":"tripal_ssr_product_size","exposed":0,"exposed_validate":1}],"mode":"select","select_if_duplicate":1,"update_if_duplicate":0,"select_optional":0,"disable":0,"optional":0},"19":{"table":"featureprop","record_id":"size-featureprop","fields":[{"type":"foreign key","title":"size-featureprop.feature_id","field":"feature_id","show_all_records":0,"foreign key":"feature","foreign field":"feature_id","required":0},{"type":"foreign key","title":"size-featureprop.type_id","field":"type_id","show_all_records":0,"foreign key":"size_cvterm","foreign field":"cvterm_id","required":0},{"type":"table field","title":"size-featureprop.value","field":"value","required":0,"spreadsheet column":"10","exposed":0,"exposed_description":""}],"mode":"insert","select_if_duplicate":0,"update_if_duplicate":1,"select_optional":0,"disable":0,"optional":0}}';
 
-
-  $options = array(
+  $options = [
     'template_name' => 'SSR Loader',
     'template_array' => $bulk_loader_template,
     'strict' => TRUE,
-  );
-  $errors = array();
-  $warnings = array();
+  ];
+  $errors = [];
+  $warnings = [];
 
   tripal_insert_bulk_loader_template($options, $errors, $warnings);
-
 }

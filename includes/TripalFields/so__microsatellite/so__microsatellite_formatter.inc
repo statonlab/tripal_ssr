@@ -90,7 +90,7 @@ class so__microsatellite_formatter extends ChadoFieldFormatter
 
         $message = 'There are no SSRs associated with this organism.';
         if ($count > 0) {
-            $message = 'There are <a href="'.$path.'">'.$count.' SSRs annotated in this organism.</a>';
+            $message = 'There are <a href="/'.$path.'">'.$count.' SSRs annotated in this organism.</a>';
         }
 
         $element[0] = [
