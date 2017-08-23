@@ -38,7 +38,7 @@ function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
     $fields = [];
 
     tripal_insert_cvterm([
-        'id' => 'so:microsatellite',
+        'id' => 'so:0000289',
         'name' => 'microsatellite',
         'cv_name' => 'so',
         'definition' => 'microsatellite!',

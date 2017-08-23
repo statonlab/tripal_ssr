@@ -57,11 +57,11 @@ class so__microsatellite extends ChadoField{
   // required for all TripalFields.
   public static $default_instance_settings = [
     // The short name for the vocabulary (e.g. schema, SO, GO, PATO, etc.).
-    'term_vocabulary' => 'so',
+    'term_vocabulary' => 'SO',
     // The name of the term.
-    'term_name' => 'so__microsatellite',
+    'term_name' => 'microsatellite',
     // The unique ID (i.e. accession) of the term.
-    'term_accession' => 'microsatellite',
+    'term_accession' => '0000289',
     // Set to TRUE if the site admin is not allowed to change the term
     // type, otherwise the admin can change the term mapped to a field.
     'term_fixed' => FALSE,
