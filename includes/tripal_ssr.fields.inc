@@ -38,11 +38,12 @@ function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
     $fields = [];
 
     tripal_insert_cvterm([
-        'id' => 'so:microsatellite',
+        'id' => 'so:0000289',
         'name' => 'microsatellite',
         'cv_name' => 'so',
         'definition' => 'microsatellite!',
     ]);
+  tripal_associate_chado_semweb_term();
 
     // Because we are expecting data housed in Chado we can use the 'data_table'
     // property of the bundle to determine if this bundle is really the one
