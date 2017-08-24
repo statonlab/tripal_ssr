@@ -37,18 +37,17 @@
 function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
     $fields = [];
 
-    tripal_insert_cvterm([
-        'id' => 'so:microsatellite',
-        'name' => 'microsatellite',
-        'cv_name' => 'so',
-        'definition' => 'microsatellite!',
-    ]);
 
     // Because we are expecting data housed in Chado we can use the 'data_table'
     // property of the bundle to determine if this bundle is really the one
     // we want the field to be associated with.
     if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
-
+        tripal_insert_cvterm([
+            'id' => 'SO:0000289',
+            'name' => 'microsatellite',
+            'cv_name' => 'sequence',
+            'definition' => 'A repeat_region containing repeat_units of 2 to 10 bp repeated in tandem. [ NCBI:th http://www.informatics.jax.org/silver/glossary.shtml ]!',
+        ]);
         //Describe the field
         $field_name = 'so__microsatellite';
         $field_type = 'so__microsatellite';
