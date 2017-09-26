@@ -275,8 +275,9 @@ class so__microsatellite extends ChadoField{
       $genus = $entity->chado_record->genus;
       $entity->{$field}['und'][0]['path'] = $this->create_ssr_url($genus, $species);
     }
-    $entity->{$field}['und'][0]['records'] = $this->get_ssr_organism($entity->{$field}['und'][0]['chado-organism__organism_id']);
-    $entity->{$field}['und'][0]['count'] = $this->get_ssr_features_count($entity->{$field}['und'][0]['chado-organism__organism_id']);
+
+    $entity->{$field}['und'][0]['records'] = $this->get_ssr_organism($entity->{$field}['und'][0]['value']);
+    $entity->{$field}['und'][0]['count'] = $this->get_ssr_features_count($entity->{$field}['und'][0]['value']);
   }
 
   /**
