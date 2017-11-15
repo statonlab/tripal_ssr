@@ -1,6 +1,6 @@
 name = Tripal SSR
 description = A simple module to show SSRs on feature pages
 core = 7.x
-version = 7.x-0.1-pre-pre-pre-alpha
+version = 7.x-1.0
 project = tripal_ssr
 package = Tripal Extensions

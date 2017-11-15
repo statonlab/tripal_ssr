@@ -82,15 +82,12 @@ class so__microsatellite_formatter extends ChadoFieldFormatter
      */
     public function view(&$element, $entity_type, $entity, $langcode, $items, $display)
     {
-        // Get the settings
-        $settings = $display['settings'];
-
         $count = $entity->so__microsatellite['und'][0]['count'];
-        $path = $entity->so__microsatellite['und'][0]['path'];
 
         $message = 'There are no SSRs associated with this organism.';
         if ($count > 0) {
-            $message = 'There are <a href="/'.$path.'">'.$count.' SSRs annotated in this organism.</a>';
+          $path = $entity->so__microsatellite['und'][0]['path'];
+          $message = 'There are <a href="/'.$path.'">'.$count.' SSRs annotated in this organism.</a>';
         }
 
         $element[0] = [
