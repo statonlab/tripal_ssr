@@ -129,6 +129,9 @@ class so__microsatellite extends ChadoField {
 
     $entity->{$field}['und'][0]['records'] = $this->get_ssr_organism($entity->{$field}['und'][0]['value']);
     $entity->{$field}['und'][0]['count'] = $this->get_ssr_features_count($entity->{$field}['und'][0]['value']);
+    if($entity->{$field}['und'][0]['count'] === 0) {
+      $entity->{$field}['und'][0]['value'] = null;
+    }
   }
 
   /**
