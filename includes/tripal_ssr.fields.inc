@@ -41,7 +41,7 @@ function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
     // Because we are expecting data housed in Chado we can use the 'data_table'
     // property of the bundle to determine if this bundle is really the one
     // we want the field to be associated with.
-    if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
+    if (isset($bundle->data_table) AND ($bundle->data_table == 'organism')) {
         tripal_insert_cvterm([
             'id' => 'SO:0000289',
             'name' => 'microsatellite',
