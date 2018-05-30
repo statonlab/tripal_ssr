@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/statonlab/tripal_ssr.svg?branch=master)](https://travis-ci.org/statonlab/tripal_ssr)
+
+
 This module displays **SSR (simple sequence repeat)** data.  It assumes you have identified SSRs in your data and would like to annotate your features with these SSRs.  
 
 The Tripal SSR module is not considered a complete module: this is why the version tag is `7.x-0.1-pre-pre-pre-alpha`.
