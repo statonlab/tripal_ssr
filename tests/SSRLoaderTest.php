@@ -7,8 +7,7 @@ require_once(__DIR__ . '/../includes/TripalImporter/SSRLoader.inc');
 
 class SSRLoader extends TripalTestCase {
   // Uncomment to auto start and rollback db transactions per test method.
-  // use DBTransaction;
-  use DBTransaction;
+   use DBTransaction;
 
   public function testImporterRuns(){
     $file = ['file_local' => __DIR__ . '/../example/no_ws_example.bib'];
@@ -25,4 +24,7 @@ class SSRLoader extends TripalTestCase {
 //    $this->assertNotEmpty($result);
 
   }
+
+
+
 }
