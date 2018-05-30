@@ -96,6 +96,6 @@ More information coming soon.</p>
 
     $arguments = $this->arguments['run_args'];
     $file_path = $this->arguments['files'][0]['file_path'];
-    tripal_ssr_import_ssr($file_path);
+    //tripal_ssr_import_ssr($file_path);
   }
 }
