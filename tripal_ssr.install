@@ -9,6 +9,9 @@ function tripal_ssr_install() {
 
 }
 
+function tripal_ssr_define_bundles(){
+
+}
 
 /**
  * Inserts local cvterms.
@@ -157,7 +160,7 @@ function tripal_ssr_add_ssr_mview(){
   $comment = 'This materialized view is used to associate an organism_id and an analysis_id with a feature that has correspondign SSR data stored in the featureprop table.';
 
   $redirect = FALSE;
-  tripal_add_mview($view_name, 'tripal_ssr', $mv, $query, $comment, $redirect);
+  chado_add_mview($view_name, 'tripal_ssr', $mv, $query, $comment, $redirect);
 }
 
 function tripal_ssr_add_bulk_loader(){
@@ -172,4 +175,13 @@ function tripal_ssr_add_bulk_loader(){
   $errors = [];
   $warnings = [];
   tripal_insert_bulk_loader_template($options, $errors, $warnings);
+}
+
+function tripal_ssr_uninstall(){
+  // Remove materialized views
+  $mview = chado_get_mview_id('feature_ssr_mview');
+  var_dump($mview);
+  if ($mview) {
+    chado_delete_mview($mview);
+  }
 }
