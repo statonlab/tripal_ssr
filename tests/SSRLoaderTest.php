@@ -30,12 +30,30 @@ class SSRLoaderTest extends TripalTestCase {
     $this->assertNotEmpty($result);
   }
 
+  public function testImporterAddsFeatureloc() {
+    $parent = $this->addParentFeature();
+    $this->loadFile();
+
+    $sql = 'SET search_path to chado, public;
+SELECT * FROM {featureloc} 
+      WHERE srcfeature_id = :srcfeature_id';
+
+    $args = [
+      ':srcfeature_id' => $parent->feature_id,
+    ];
+    $results = chado_query($sql, $args);
+    $this->assertGreaterThan(0, $results);
+
+    foreach ($results as $result) {
+      $this->assertObjectHasAttribute('fmin', $result);
+      $this->assertObjectHasAttribute('fmax', $result);
+    }
+
+  }
+
   public function testImporterAddsProps() {
-
-
-   $term = chado_get_cvterm(['id' => 'tripal:tripal_ssr_forward_tm']);
-
-   $prop_term = $term->cvterm_id;
+    $term = chado_get_cvterm(['id' => 'tripal:tripal_ssr_forward_tm']);
+    $prop_term = $term->cvterm_id;
 
     //get a term used, count num featureprops with it
 
@@ -57,6 +75,7 @@ class SSRLoaderTest extends TripalTestCase {
 
     $this->assertGreaterThan($count, $new_count, 'No featureprops were added by the importer.');
   }
+
 
   public function testImporterAddsRelationship() {
     $parent = $this->addParentFeature();
