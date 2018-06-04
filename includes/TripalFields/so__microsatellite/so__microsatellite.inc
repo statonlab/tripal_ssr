@@ -71,12 +71,6 @@ class so__microsatellite extends ChadoField {
     // should have auto_attach set to FALSE so tha their values can be
     // attached asynchronously.
     'auto_attach' => FALSE,
-    // The table in Chado that the instance maps to.
-    'chado_table' => 'organism',
-    // The column of the table in Chado where the value of the field comes from.
-    'chado_column' => 'organism_id',
-    // The base table.
-    'base_table' => '',
   ];
 
   // A boolean specifying that users should not be allowed to create
@@ -119,19 +113,112 @@ class so__microsatellite extends ChadoField {
   public function load($entity) {
     parent::load($entity);
     $field = 'so__microsatellite';
-    $entity->{$field}['und'][0]['value'] = isset($entity->{$field}['und'][0]['chado-organism__organism_id']) ? $entity->{$field}['und'][0]['chado-organism__organism_id'] : $entity->{$field}['und'][0]['chado-feature__organism_id'];
 
-    if (isset($entity->{$field}['und'][0]['chado-organism__organism_id'])) {
-      $species = $entity->chado_record->species;
-      $genus = $entity->chado_record->genus;
-      $entity->{$field}['und'][0]['path'] = $this->create_ssr_url($genus, $species);
+    $entity_table = $entity->chado_table;
+
+    if ($entity_table == 'organism') {
+      $entity->{$field}['und'][0]['value'] = isset($entity->{$field}['und'][0]['chado-organism__organism_id']) ? $entity->{$field}['und'][0]['chado-organism__organism_id'] : $entity->{$field}['und'][0]['chado-feature__organism_id'];
+
+      if (isset($entity->{$field}['und'][0]['chado-organism__organism_id'])) {
+        $species = $entity->chado_record->species;
+        $genus = $entity->chado_record->genus;
+        $entity->{$field}['und'][0]['path'] = $this->create_ssr_url($genus, $species);
+      }
+
+      $entity->{$field}['und'][0]['records'] = $this->get_ssr_organism($entity->{$field}['und'][0]['value']);
+      $entity->{$field}['und'][0]['count'] = $this->get_ssr_features_count($entity->{$field}['und'][0]['value']);
+      if ($entity->{$field}['und'][0]['count'] === 0) {
+        $entity->{$field}['und'][0]['value'] = NULL;
+      }
+      return;
     }
 
-    $entity->{$field}['und'][0]['records'] = $this->get_ssr_organism($entity->{$field}['und'][0]['value']);
-    $entity->{$field}['und'][0]['count'] = $this->get_ssr_features_count($entity->{$field}['und'][0]['value']);
-    if($entity->{$field}['und'][0]['count'] === 0) {
-      $entity->{$field}['und'][0]['value'] = null;
+    if ($entity_table == 'feature') {
+
+      $entity->{$field}['und'][0] = NULL;
+      $i = 0;
+      $record_id = $entity->chado_record->feature_id;
+      $ssrs = $this->get_related_SSRs($record_id);
+      if (!$ssrs) {
+        return;
+      }
+
+      foreach ($ssrs as $ssr) {
+        $id = $ssr->subject_id;
+        $name = $ssr->name;
+        $uname = $ssr->uniquename;
+
+        $entity->{$field}['und'][$i]['value'] = [
+          'name' => $name,
+          'unique_name' => $uname,
+        ];
+        $entity->{$field}['und'][$i]['feature_id'] = $id;
+
+        $props = $this->get_ssr_props($id);
+        if ($props) {
+          foreach ($props as $prop) {
+            $entity->{$field}['und'][$i]['value'][$prop['name']] = $prop['value'];
+          }
+        }
+
+        $i++;
+      }
     }
+  }
+
+  /**
+   * @param $feature_record
+   */
+  function get_related_SSRs($feature_record) {
+
+    $ssr_cvterm = chado_get_cvterm(['id' => 'SO:0000289']);
+    $ssr_type_id = $ssr_cvterm->cvterm_id;
+
+    $query = db_select('chado.feature_relationship', 'fr');
+    $query->fields('fr', ['subject_id']);
+    $query->join('chado.feature', 'f', 'fr.subject_id = f.feature_id');
+    $query->fields('f', ['name', 'uniquename']);
+    $query->condition('fr.object_id', $feature_record);
+    $query->condition('f.type_id', $ssr_type_id);
+    $ssrs = $query->execute()->fetchAll();
+    // $query->join('chado.feature', 'fs', 'fr.subject_id = f.feature_id');
+    // $query->join('chado.feature', 'f', 'fr.object_id = f.feature_id');
+    return $ssrs;
+  }
+
+  function get_ssr_props($ssr_id) {
+
+    $query = db_select('chado.featureprop', 'fp');
+    $query->join('chado.cvterm', 'cvt', 'fp.type_id = cvt.cvterm_id');
+    $query->fields('cvt', ['name']);
+    $query->fields('fp', ['value']);
+    $query->condition('fp.feature_id', $ssr_id);
+
+    //see loader for terms.
+
+    $query->condition('cvt.name', [
+      'tripal_ssr_motif',
+      'tripal_ssr_repeats',
+      'tripal_ssr_forward_primer',
+      'tripal_ssr_reverse_primer',
+      'tripal_ssr_forward_tm',
+      'tripal_ssr_reverse_tm',
+      'tripal_ssr_product_size',
+    ], 'IN');
+
+    $results = $query->execute()->fetchAll();
+    $props = [];
+
+    if (!$results) {
+      return FALSE;
+    }
+    foreach ($results as $result) {
+      $name = $result->name;
+      $value = $result->value;
+
+      $props[] = ['name' => $name, 'value' => $value];
+    }
+    return $props;
   }
 
   /**

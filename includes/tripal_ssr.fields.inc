@@ -35,34 +35,34 @@
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
 function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
-    $fields = [];
+  $fields = [];
 
 
-    // Because we are expecting data housed in Chado we can use the 'data_table'
-    // property of the bundle to determine if this bundle is really the one
-    // we want the field to be associated with.
-    if (isset($bundle->data_table) AND ($bundle->data_table == 'organism')) {
-        tripal_insert_cvterm([
-            'id' => 'SO:0000289',
-            'name' => 'microsatellite',
-            'cv_name' => 'sequence',
-            'definition' => 'A repeat_region containing repeat_units of 2 to 10 bp repeated in tandem. [ NCBI:th http://www.informatics.jax.org/silver/glossary.shtml ]!',
-        ]);
-        //Describe the field
-        $field_name = 'so__microsatellite';
-        $field_type = 'so__microsatellite';
-        $fields[$field_name] = [
-            'field_name' => $field_name,
-            'type' => $field_type,
-            'cardinality' => 1,
-            'locked' => FALSE,
-            'storage' => [
-                'type' => 'field_chado_storage',
-            ],
-        ];
-    }
+  // Because we are expecting data housed in Chado we can use the 'data_table'
+  // property of the bundle to determine if this bundle is really the one
+  // we want the field to be associated with.
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
+    tripal_insert_cvterm([
+      'id' => 'SO:0000289',
+      'name' => 'microsatellite',
+      'cv_name' => 'sequence',
+      'definition' => 'A repeat_region containing repeat_units of 2 to 10 bp repeated in tandem. [ NCBI:th http://www.informatics.jax.org/silver/glossary.shtml ]!',
+    ]);
+    //Describe the field
+    $field_name = 'so__microsatellite';
+    $field_type = 'so__microsatellite';
+    $fields[$field_name] = [
+      'field_name' => $field_name,
+      'type' => $field_type,
+      'cardinality' => 1,
+      'locked' => FALSE,
+      'storage' => [
+        'type' => 'field_chado_storage',
+      ],
+    ];
+  }
 
-    return $fields;
+  return $fields;
 }
 
 /**
@@ -90,41 +90,41 @@ function tripal_ssr_bundle_fields_info($entity_type, $bundle) {
  *   will be used to create an instance of an already existing field.
  */
 function tripal_ssr_bundle_instances_info($entity_type, $bundle) {
-    $instances = [];
+  $instances = [];
 
-    // ORGANISM.
-    //===============
-    if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
-        $field_name = 'so__microsatellite';
-        $field_type = 'so__microsatellite';
-        $field_table = $bundle->data_table;
-        $instances[$field_name] = [
-            'field_name' => $field_name,
-            'entity_type' => $entity_type,
-            'bundle' => $bundle->name,
-            'label' => 'microsatellite',
-            'description' => 'Microsatellite (SSR)',
-            'required' => FALSE,
-            'settings' => [
-                'auto_attach' => TRUE,
-                'chado_table' => $field_table,
-                'chado_column' => 'organism_id',
-                'base_table' => $field_table,
-            ],
-            'widget' => [
-                'type' => 'so__microsatellite_widget',
-                'settings' => [],
-            ],
-            'display' => [
-                'default' => [
-                    'label' => 'hidden',
-                    'region' => 'Right',
-                    'settings' => [],
-                    'type' => 'so__microsatellite_formatter',
-                ],
-            ],
-        ];
-    }
+  // ORGANISM.
+  //===============
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'organism' OR $bundle->data_table == 'feature')) {
+    $field_name = 'so__microsatellite';
+    $field_type = 'so__microsatellite';
+    $field_table = 'chado.feature';
+    $instances[$field_name] = [
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'bundle' => $bundle->name,
+      'label' => 'microsatellite',
+      'description' => 'Microsatellite (SSR)',
+      'required' => FALSE,
+      'settings' => [
+        'auto_attach' => TRUE,
+        'chado_table' => $field_table,
+        'chado_column' => 'feature_id',
+        'base_table' => $field_table,
+      ],
+      'widget' => [
+        'type' => 'so__microsatellite_widget',
+        'settings' => [],
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'hidden',
+          'region' => 'Right',
+          'settings' => [],
+          'type' => 'so__microsatellite_formatter',
+        ],
+      ],
+    ];
+  }
 
-    return $instances;
+  return $instances;
 }

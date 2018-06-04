@@ -24,8 +24,7 @@ class SSRLoader extends TripalImporter {
    * An array containing the extensions of allowed file types.
    */
   public static $file_types = [
-    '.txt',
-    '.tsv',
+    'txt', 'tsv'
   ];
 
   /**
@@ -148,8 +147,9 @@ More information coming soon.</p>
       $ssr_feature = $this->get_ssr_feature($ssr_uniquename, $organism_id, $parent_feature_id);
 
       //Add props to ssr_feature
-      $this->add_ssr_props($ssr_feature, $motif, $num_repeats, $ssr_feature, $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size);
-      //Add location information
+      $this->add_ssr_props($ssr_feature, $motif, $num_repeats,  $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size);
+
+        //Add location information
       $this->insert_featureloc($ssr_feature, $parent_feature_id, $start_pos, $end_pos);
     }
   }

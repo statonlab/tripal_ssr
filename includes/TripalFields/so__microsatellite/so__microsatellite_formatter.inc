@@ -82,23 +82,56 @@ class so__microsatellite_formatter extends ChadoFieldFormatter
      */
     public function view(&$element, $entity_type, $entity, $langcode, $items, $display)
     {
-    
 
+      if ($entity->chado_table == 'organism'){
         $count = $entity->so__microsatellite['und'][0]['count'];
 
         $message = null;
 
-	if ($count > 0) {
+        if ($count > 0) {
           $path = $entity->so__microsatellite['und'][0]['path'];
           $message = 'There are <a href="/'.$path.'">'.$count.' SSRs annotated in this organism.</a>';
         }
-	if ($message){
-        $element[0] = [
+        if ($message){
+          $element[0] = [
             '#type' => 'markup',
             '#markup' => $message,
-        ];
-	}
-    }
+          ];
+        }
+        return $element;
+      }
+
+      if ($entity->chado_table == 'feature') {
+
+        $i = 0;
+
+          if (!isset($items[0]['value']['name'])){
+            return;
+          }
+
+          foreach ($items as $item) {
+
+
+            $info = $item['value'];
+
+            dpm($info);
+            $markup = '<ul>';
+
+            foreach ($info as $li => $value) {
+
+              $markup .= '<li><b>'.$li.'</b>:  '.$value.'</li>';
+            }
+            $markup .='</ul>';
+            $element[$i] = [
+              '#markup' => $markup
+            ];
+            $i++;
+          }
+
+          return $element;
+        }
+
+      }
 
     /**
      * Provides a summary of the formatter settings.
