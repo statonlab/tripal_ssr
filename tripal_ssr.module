@@ -2,8 +2,6 @@
 
 include drupal_get_path('module', 'tripal_ssr') . '/includes/tripal_ssr.fields.inc';
 
-//insert the ssr cvterm and cv if necessary
-
 /**
  * Implements hook_node_view().
  *
