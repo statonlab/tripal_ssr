@@ -24,7 +24,8 @@ class SSRLoader extends TripalImporter {
    * An array containing the extensions of allowed file types.
    */
   public static $file_types = [
-    '.txt', '.tsv'
+    '.txt',
+    '.tsv',
   ];
 
   /**
@@ -78,7 +79,6 @@ More information coming soon.</p>
 ',
     ];
 
-
     return $form;
   }
 
@@ -96,6 +96,247 @@ More information coming soon.</p>
 
     $arguments = $this->arguments['run_args'];
     $file_path = $this->arguments['files'][0]['file_path'];
-    //tripal_ssr_import_ssr($file_path);
+    $this->tripal_ssr_import_ssr($file_path);
+  }
+
+  private function tripal_ssr_import_ssr($file_path) {
+    //Read in the file, split the columns
+
+
+    $file = new SplFileObject($file_path);
+
+    // Loop until we reach the end of the file.
+
+    $parent_id = NULL;
+
+    while (!$file->eof()) {
+      // Echo one line from the file.
+      $line = $file->fgets();
+      $split = explode("\t", $line);
+
+      if (count($split) != 11) {
+        print "Error: Input file should be an 11 column tab delimited file";
+        return;
+      }
+
+      $parent_feature_uniquename = $split[0];
+      $ssr_uniquename = $split[1];
+      $motif = $split[2];
+      $num_repeats = $split[3];
+      $start_pos = $split[4]; //start position of SSR relative to parent
+      $end_pos = $split[5];
+      $f_primer = $split[6];//forward primer
+      $r_primer = $split[7];
+      $f_primer_tm = $split[8];
+      $r_primer_tm = $split[9];
+      $product_size = $split[10];
+
+      //skip headers
+      if ($parent_feature_uniquename == 'Feature_ID' || strtolower($motif) === 'motif') {
+        continue;
+      }
+
+      $parent_feature = $this->find_parent_feature($parent_feature_uniquename);
+      if (!$parent_feature) {
+        print "Error: Could not uniquely identify parent feature.";
+        return;
+      }
+
+      $parent_feature_id = $parent_feature->feature_id;
+      $organism_id = $parent_feature->organism_id;
+
+      $ssr_feature = $this->get_ssr_feature($ssr_uniquename, $organism_id, $parent_feature_id);
+
+      //Add props to ssr_feature
+      $this->add_ssr_props($ssr_feature, $motif, $num_repeats, $ssr_feature, $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size);
+      //Add location information
+      $this->insert_featureloc($ssr_feature, $parent_feature_id, $start_pos, $end_pos);
+    }
+  }
+
+  /**
+   * @param $ssr_uniquename
+   * @param $organism_id
+   * @param $parent_feature_id
+   *
+   * @return ssr feature id, or false.
+   */
+  function get_ssr_feature($ssr_uniquename, $organism_id, $parent_feature_id) {
+
+    $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
+
+    $query = db_select('chado.feature', 'f');
+    $query->fields('f', ['feature_id']);
+    $query->condition('uniquename', $ssr_uniquename);
+    $query->condition('type_id', $ssrTerm->cvterm_id);
+    $result = $query->execute()->fetchField();
+
+    if (!$result) {
+      // Doesnt exist so insert
+      $values = [
+        'organism_id' => $organism_id,
+        'name' => $ssr_uniquename,
+        'uniquename' => $ssr_uniquename,
+        'type_id' => $ssrTerm->cvterm_id,
+      ];
+      $result = chado_insert_record('feature', $values);
+
+      if (!$result) {
+        $this->logMessage("Failed to insert feature '!name'", [
+          '!name' => $ssr_uniquename,
+        ], TRIPAL_ERROR);
+        return FALSE;
+      }
+    }
+
+    $ssr_feature_id = $result['feature_id'];
+    $term = chado_get_cvterm(['id' => 'SO:associated_with']);
+
+    $query = db_insert('chado.feature_relationship')
+      ->fields([
+        'subject_id' => $ssr_feature_id,
+        'object_id' => $parent_feature_id,
+        'type_id' => $term->cvterm_id,
+      ])->execute();
+    //TODO: ERROR HANDLING HERE.
+
+    return $ssr_feature_id;
+  }
+
+  /**
+   * We have the uniquename and possibly a type_id.  retrieve said feature.
+   *
+   * @param $unique_name
+   * @param $type_id feature type_id
+   *
+   * @return bool
+   */
+  public function find_parent_feature($unique_name, $type_id = NULL) {
+    $query = db_select('chado.feature', 'f');
+    $query->fields('f', ['feature_id', 'organism_id']);
+    $query->condition('uniquename', $unique_name);
+
+    if ($type_id) {
+      $query->condition('type_id', $type_id);
+    }
+    $result = $query->execute()->fetchAll();
+
+    if (count($result) > 1) {
+
+      $this->logMessage("Failed to uniquely identify feature '!name'", [
+        '!name' => $unique_name,
+      ], TRIPAL_ERROR);
+      return FALSE;
+    }
+    if ($result) {
+      return $result[0];
+    }
+    return FALSE;
+  }
+
+  /**
+   * Adds properties to the sSR feature
+   *
+   * @param $feature_id
+   * @param $motif
+   * @param $num_repeats
+   * @param $f_primer
+   * @param $r_primer
+   * @param $f_primer_tm
+   * @param $r_primer_tm
+   * @param $product_size
+   */
+  function add_ssr_props($feature_id, $motif, $num_repeats, $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size) {
+    $props = [
+      [
+        'value' => $motif,
+        'type_name' => 'tripal_ssr_motif',
+        'cv_name' => 'feature_property',
+      ],
+      [
+        'value' => $num_repeats,
+        'type_name' => 'tripal_ssr_repeats',
+        'cv_name' => 'feature_property',
+      ],
+      [
+        'value' => $f_primer,
+        'type_name' => 'tripal_ssr_forward_primer',
+        'cv_name' => 'feature_property',
+      ],
+      [
+        'value' => $r_primer,
+        'type_name' => 'tripal_ssr_reverse_primer',
+        'cv_name' => 'feature_property',
+      ],
+      [
+        'value' => $f_primer_tm,
+        'type_name' => 'tripal_ssr_forward_tm',
+        'cv_name' => 'feature_property',
+      ],
+      [
+        'value' => $r_primer_tm,
+        'type_name' => 'tripal_ssr_reverse_tm',
+        'cv_name' => 'feature_property',
+      ],
+      [
+        'value' => $product_size,
+        'type_name' => 'tripal_ssr_product_size',
+        'cv_name' => 'feature_property',
+      ],
+
+    ];
+
+    $record = ['id' => $feature_id, 'table' => 'feature'];
+    $options = ['update_if_present' => TRUE];
+
+    foreach ($props as $prop) {
+      $property = [
+        'type_name' => $prop['type_name'],
+        'cv_name' => $prop['cv_name'],
+        'value' => $prop['value'],
+      ];
+      if (!chado_insert_property($record, $property, $options)) {
+        tripal_report_error('Tripal SSR', TRIPAL_ERROR, "Could not add property" . $prop['type_name']);
+      }
+    }
+  }
+
+
+  /**
+   * Inserts location into featureloc.
+   *
+   * @param $ssr_feature - the feature ID being located
+   * @param $parent_feature - the source feature ID that ssr is relative to.
+   * @param $fmin - int.  The leftmost/minimal boundary in the linear range
+   *   represented by the featureloc.
+   * @param $fmax - int.  The rightmost/max boundary in the linear range
+   *   represented by the featureloc.
+   */
+  private function insert_featureloc($ssr_feature, $parent_feature, $fmin, $fmax) {
+
+    //    $insert = db_insert('chado.featureloc');
+    //    $insert->fields([
+    //      'feature_id' => $ssr_feature,
+    //      'srcfeature_id' => $parent_feature,
+    //      'fmin' =>  (int) $fmin,
+    //      'fmax' => (int) $fmax,
+    //    ])->searchpath('chado','public');
+    //    $outcome = $insert->execute();
+
+    //I dont know how to set searchpath in the drupal query builder so lets use chado_query instead.
+
+    $sql = 'SET search_path to chado, public;
+INSERT INTO {featureloc} (feature_id, srcfeature_id, fmin, fmax)
+      VALUES (:feature_id, :srcfeature_id, :fmin, :fmax)';
+
+    $args = [
+      ':feature_id' => $ssr_feature,
+      ':srcfeature_id' => $parent_feature,
+      ':fmin' => (int) $fmin,
+      ':fmax' => (int) $fmax,
+    ];
+    $results = chado_query($sql, $args);
+
+    return $results;
   }
 }

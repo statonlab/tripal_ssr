@@ -1,0 +1,2 @@
+Feature_ID	SSR ID	motif	number of repeats	start position	end position	forward primer	reverse primer	forward Tm	reverse Tm	product size
+WaffleFeature	3935838_ssr85	taat	4	85	101	AGATTTAGGCCCGATTTAGGACC	GGGTAAGTCAGTATTAATTCTGTGG	59.927	57.212	140
