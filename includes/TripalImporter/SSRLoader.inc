@@ -323,8 +323,10 @@ More information coming soon.</p>
     //    ])->searchpath('chado','public');
     //    $outcome = $insert->execute();
 
+    //I dont know how to set searchpath in the drupal query builder so lets use chado_query instead.
+
     $sql = 'SET search_path to chado, public;
-INSERT INTO {chado.featureloc} (feature_id, srcfeature_id, fmin, fmax)
+INSERT INTO {featureloc} (feature_id, srcfeature_id, fmin, fmax)
       VALUES (:feature_id, :srcfeature_id, :fmin, :fmax)';
 
     $args = [

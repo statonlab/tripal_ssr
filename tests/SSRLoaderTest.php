@@ -32,14 +32,17 @@ class SSRLoaderTest extends TripalTestCase {
 
   public function testImporterAddsProps() {
 
-    $prop_term = 1;
-    //get a term used, count num featureprops with it
 
+   $term = chado_get_cvterm(['id' => 'tripal:tripal_ssr_forward_tm']);
+
+   $prop_term = $term->cvterm_id;
+
+    //get a term used, count num featureprops with it
 
     $query = db_select('chado.featureprop', 'fp')
       ->fields('fp', ['feature_id'])
       ->condition('type_id', $prop_term);//did
-    $count = $query->execute()->fetchCount();
+    $count = $query->execute()->rowCount();
 
     $parent = $this->addParentFeature();
 
@@ -50,9 +53,9 @@ class SSRLoaderTest extends TripalTestCase {
     $query = db_select('chado.featureprop', 'fp')
       ->fields('fp', ['feature_id'])
       ->condition('type_id', $prop_term);
-    $new_count = $query->execute()->fetchCount();
+    $new_count = $query->execute()->rowCount();
 
-    $this->assertGreaterThan($new_count, $count, 'No featureprops were added by the importer.');
+    $this->assertGreaterThan($count, $new_count, 'No featureprops were added by the importer.');
   }
 
   public function testImporterAddsRelationship() {
