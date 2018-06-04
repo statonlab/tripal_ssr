@@ -4,7 +4,7 @@ function tripal_ssr_install() {
 
   tripal_ssr_install_local_terms();
   tripal_ssr_add_ssr_mview();
- // tripal_ssr_add_bulk_loader();
+  // tripal_ssr_add_bulk_loader();
 
 }
 
@@ -146,27 +146,29 @@ function tripal_ssr_add_ssr_mview() {
   ];
 
   $query = "SELECT DISTINCT
-              A.analysis_id, O.organism_id, O.common_name, O.genus, O.species, F.feature_id, F.name, F.uniquename, CVTF.name
+              AF.analysis_id, O.organism_id, O.common_name, O.genus, O.species, F.feature_id, F.name, F.uniquename, CVTF.name
             FROM organism O
               INNER JOIN feature F ON O.organism_id = F.organism_id
+              INNER JOIN feature_relationship FR ON F.feature_id = FR.object_id
+              INNER JOIN feature FTWO ON FR.subject_id = FTWO.feature_id
               INNER JOIN cvterm CVTF ON F.type_id = CVTF.cvterm_id
               INNER JOIN analysisfeature AF ON F.feature_id = AF.feature_id
-              INNER JOIN analysis A ON AF.analysis_id = A.analysis_id
-              INNER JOIN featureprop FP ON F.feature_id = FP.feature_id
-              INNER JOIN cvterm CVTFP ON FP.type_id = CVTFP.cvterm_id
+              INNER JOIN cvterm CVTFTWO ON FTWO.type_id = CVTFTWO.cvterm_id
             WHERE
-              CVTFP.name = 'tripal_ssr_motif'";
+              CVTFTWO.name = 'microsatellite'";
 
-  $comment = 'This materialized view is used to associate an organism_id and an analysis_id with a feature that has correspondign SSR data stored in the featureprop table.';
+  $comment = 'This materialized view is used to associate an organism_id and an analysis_id with a feature that has a feature_relationship with an SSR feature.';
 
   $redirect = FALSE;
   chado_add_mview($view_name, 'tripal_ssr', $mv, $query, $comment, $redirect);
 }
 
 /**
- * Adds the bulk loader.  Because we do some things with feature location now, we just dont do this anymore.
- * This is a general bulk loader.  It will fail if the uniquename for a feature is not unique (IE if your mRNA/polypeptides share uniquenames.)
- * In that case, you should use this loader, but specifying the type_ID of the parent feature.
+ * Adds the bulk loader.  Because we do some things with feature location now,
+ * we just dont do this anymore. This is a general bulk loader.  It will fail
+ * if the uniquename for a feature is not unique (IE if your mRNA/polypeptides
+ * share uniquenames.) In that case, you should use this loader, but specifying
+ * the type_ID of the parent feature.
  */
 function tripal_ssr_add_bulk_loader() {
 
@@ -197,7 +199,6 @@ function tripal_ssr_add_bulk_loader() {
 function tripal_ssr_uninstall() {
   // Remove materialized views
   $mview = chado_get_mview_id('feature_ssr_mview');
-  var_dump($mview);
   if ($mview) {
     chado_delete_mview($mview);
   }

@@ -167,6 +167,7 @@ class so__microsatellite extends ChadoField {
   }
 
   /**
+   * Get ssr features related to the entity.
    * @param $feature_record
    */
   function get_related_SSRs($feature_record) {
@@ -186,6 +187,12 @@ class so__microsatellite extends ChadoField {
     return $ssrs;
   }
 
+  /**
+   * get props for the ssr feature.
+   * @param $ssr_id
+   *
+   * @return array|bool
+   */
   function get_ssr_props($ssr_id) {
 
     $query = db_select('chado.featureprop', 'fp');
@@ -232,10 +239,8 @@ class so__microsatellite extends ChadoField {
     if (!$organism_id) {
       return FALSE;
     }
-
     $sql = 'SELECT feature_id FROM {feature_ssr_mview} WHERE organism_id = :organism_id';
     $result = chado_query($sql, [':organism_id' => $organism_id])->fetchAssoc();
-
     return $result;
   }
 
@@ -261,7 +266,6 @@ class so__microsatellite extends ChadoField {
     $path = "ssr-features/{$genus}/{$species}";
     return ($path);
   }
-
 
   //below function create a link to the file download.  For now, let's link to the view instead.
 
