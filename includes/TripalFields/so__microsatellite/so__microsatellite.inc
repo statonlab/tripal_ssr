@@ -167,7 +167,8 @@ class so__microsatellite extends ChadoField {
   }
 
   /**
-   * Get ssr features related to the entity.
+   * Get ssr features related to the FEATURE entity.
+   *
    * @param $feature_record
    */
   function get_related_SSRs($feature_record) {
@@ -182,13 +183,12 @@ class so__microsatellite extends ChadoField {
     $query->condition('fr.object_id', $feature_record);
     $query->condition('f.type_id', $ssr_type_id);
     $ssrs = $query->execute()->fetchAll();
-    // $query->join('chado.feature', 'fs', 'fr.subject_id = f.feature_id');
-    // $query->join('chado.feature', 'f', 'fr.object_id = f.feature_id');
     return $ssrs;
   }
 
   /**
    * get props for the ssr feature.
+   *
    * @param $ssr_id
    *
    * @return array|bool
@@ -229,7 +229,7 @@ class so__microsatellite extends ChadoField {
   }
 
   /**
-   * Get the SSR for a given organism.
+   * Get the features associated with SSRs for a given organism.
    *
    * @param $organism_id
    *

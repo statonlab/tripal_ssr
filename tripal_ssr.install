@@ -131,6 +131,15 @@ function tripal_ssr_add_ssr_mview() {
         'length' => '255',
         'not null' => TRUE,
       ],
+      'ssr_feature_id' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'ssr_uniquename' => [
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ],
     ],
     'indexes' => [
       'analysis_id_idx' => [
@@ -146,7 +155,7 @@ function tripal_ssr_add_ssr_mview() {
   ];
 
   $query = "SELECT DISTINCT
-              AF.analysis_id, O.organism_id, O.common_name, O.genus, O.species, F.feature_id, F.name, F.uniquename, CVTF.name
+              AF.analysis_id, O.organism_id, O.common_name, O.genus, O.species, F.feature_id, F.name, F.uniquename, CVTF.name, FTWO.feature_id, FTWO.uniquename
             FROM organism O
               INNER JOIN feature F ON O.organism_id = F.organism_id
               INNER JOIN feature_relationship FR ON F.feature_id = FR.object_id
