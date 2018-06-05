@@ -4,4 +4,4 @@ project = tripal_ssr
 package = Tripal Extensions
 core = 7.x
 version = 7.x-3.x
-dependencies[] = tripal
+dependencies[] = tripal, tripal_elasticsearch

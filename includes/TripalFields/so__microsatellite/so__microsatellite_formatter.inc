@@ -81,6 +81,7 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
    */
   public function view(&$element, $entity_type, $entity, $langcode, $items, $display) {
 
+    //deal with organism case
     if ($entity->chado_table == 'organism') {
       $count = $entity->so__microsatellite['und'][0]['count'];
 
@@ -90,15 +91,51 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
         $path = $entity->so__microsatellite['und'][0]['path'];
         $message = 'There are <a href="/' . $path . '">' . $count . ' features with SSR annotations in this organism.</a>';
       }
-      if ($message) {
-        $element[0] = [
+      $organism = $entity->chado_record;
+
+      $es = new ESInstance();
+      $query = tripal_elasticsearch_gene_search_index_query_mapper([
+        'organism' => "$organism->genus $organism->species",
+        "search_term" => '*',
+      ]);
+
+      try {
+
+        $count = $es->setTableSearchParams('gene_search_index', '', $query)
+          ->count();
+        if ($count < 1) {
+          return NULL;
+        }
+      } catch (Exception $exception) {
+        $element[] = [
           '#type' => 'markup',
-          '#markup' => $message,
+          '#markup' => t('<p>Search service is not available at this time. Please 
+                        contact us to fix this issue.</p>'),
         ];
+        $message = "Feature search in organism {$organism->genus}
+                  {$organism->species} has failed with the following 
+                  message. " . $exception->getMessage();
+        tripal_report_error('tripal_elasticsearch', TRIPAL_ERROR, $message);
+        return;
       }
+
+      $organism_name = "$organism->genus $organism->species";
+      $form = drupal_get_form('tripal_elasticsearch_gene_search_form', TRUE, $organism_name, [
+        'tripal_pane' => 'group_feature_search',
+        'organism' => $organism_name,
+      ]);
+
+      $content = '<p>You can search this organism’s features in the database by entering search terms in the box. You can search by feature name or annotation.</p>';
+      $content .= drupal_render($form);
+      $element[] = [
+        '#type' => 'markup',
+        '#markup' => $content,
+      ];
+
       return $element;
     }
 
+//deal with feature case
     if ($entity->chado_table == 'feature') {
 
       $i = 0;
@@ -135,6 +172,12 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       ];
       return $element;
     }
+  }
+
+  public function esView(&$element, $entity_type, $entity, $langcode, $items, $display) {
+
+
+    return;
   }
 
   /**
