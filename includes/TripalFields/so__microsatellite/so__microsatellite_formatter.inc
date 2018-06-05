@@ -84,15 +84,12 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
     if ($entity->chado_table == 'organism') {
       $count = $entity->so__microsatellite['und'][0]['count'];
 
-
       $message = NULL;
 
       if ($count > 0) {
         $path = $entity->so__microsatellite['und'][0]['path'];
-        $message = 'There are <a href="/' . $path . '">' . $count . ' SSRs annotated in this organism.</a>';
+        $message = 'There are <a href="/' . $path . '">' . $count . ' features with SSR annotations in this organism.</a>';
       }
-
-      dpm($message);
       if ($message) {
         $element[0] = [
           '#type' => 'markup',
@@ -109,7 +106,6 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       if (!isset($items[0]['value']['name'])) {
         return;
       }
-
 
       $header = [
         'name' => 'Name',
