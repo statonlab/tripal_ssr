@@ -93,19 +93,10 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       }
       $organism = $entity->chado_record;
 
-      $es = new ESInstance();
-      $query = tripal_elasticsearch_gene_search_index_query_mapper([
-        'organism' => "$organism->genus $organism->species",
-        "search_term" => '*',
-      ]);
 
       try {
 
-        $count = $es->setTableSearchParams('gene_search_index', '', $query)
-          ->count();
-        if ($count < 1) {
           return NULL;
-        }
       } catch (Exception $exception) {
         $element[] = [
           '#type' => 'markup',
@@ -208,5 +199,28 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
    *
    */
   public function settingsSummary($view_mode) {
+  }
+
+  public function query_ssr($search_term){
+
+    $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
+    $query = db_select('chado.feature', 'f');
+    $query->fields('f', ['feature_id', 'uniquename', 'name']);
+    $query->join('chado.feature_relationship', 'fr', 'f.object_id = f.feature_id');
+    $query->join('chado.feature', 'fssr', 'fr.subject_id = fssr.feature_id');
+    $query->condition('uniquename','LIKE', $search_term);
+    $query->condition('type_id', $ssrTerm->cvterm_id);
+    $result = $query->execute()->fetchAll();
+
+    $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
+    $query = db_select('chado.feature', 'f');
+    $query->fields('f', ['feature_id', 'uniquename', 'name']);
+    $query->join('chado.feature_relationship', 'fr', 'f.object_id = f.feature_id');
+    $query->join('chado.feature', 'fssr', 'fr.subject_id = fssr.feature_id');
+    $query->join('chado.featureprop', 'fp', 'f.feature_id = fp.feature_id');
+    $query->condition('type_id', $ssrTerm->cvterm_id);
+
+
+
   }
 }
