@@ -98,6 +98,16 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
 
       $organism = $entity->chado_record;
 
+     $analyses =  $this->tripal_ssr_get_associated_analyses($organism->organism_id);
+
+if ($analyses){
+  $message .= '<p>The complete list of SSR markers, their properties, and primers to amplify then can be found on the corresponding analysis page.</p>';
+
+  $message .= $this->render_ssr_analysis_table($analyses);
+
+}
+
+
       $form = drupal_get_form('tripal_ssr_marker_search_form', TRUE, $organism->organism_id, [
         'tripal_pane' => 'group_ssr_search',
         'organism' => $organism->organism_id,
@@ -183,4 +193,32 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
   public function settingsSummary($view_mode) {
   }
 
+  public function tripal_ssr_get_associated_analyses($organism_id) {
+    $ssr_term = chado_get_cvterm(['id' => 'SO:0000289']);
+    $query = db_select('chado.organism', 'o');
+    $query->distinct();
+    $query->join('chado.feature', 'f', 'o.organism_id = f.organism_id');
+    $query->join('chado.analysisfeature', 'af', 'f.feature_id = af.feature_id');
+    $query->join('chado.analysis', 'a', 'a.analysis_id = af.analysis_id');
+    $query->condition('f.type_id', $ssr_term->cvterm_id);
+    $query->condition('o.organism_id', $organism_id);
+    $query->fields('a', ['analysis_id', 'name']);
+    return $query->execute()->fetchAll();
+  }
+
+  private function render_ssr_analysis_table($results){
+    $header = ['Analysis Name'];
+    $rows = [];
+    foreach ($results as $result ){
+      $analysis_id = $result->analysis_id;
+      $name = $result->name;
+      $entity_id = chado_get_record_entity_by_table('analysis', $analysis_id);
+      $rows[] = [l($name, '/bio_data/'. $entity_id)];
+    }
+    return theme('table', [
+      'header' => $header,
+      'rows' => $rows,
+    ]);
+  }
 }
+
