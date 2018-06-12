@@ -211,4 +211,8 @@ function tripal_ssr_uninstall() {
   if ($mview) {
     chado_delete_mview($mview);
   }
+
+  function tripal_ssr_migrate_existing_ssrs(){
+
+  }
 }
