@@ -110,6 +110,7 @@ if ($analyses){
 
       $form = drupal_get_form('tripal_ssr_marker_search_form', TRUE, $organism->organism_id, [
         'tripal_pane' => 'group_ssr_search',
+        //NOTE: this doesnt do what i think it does, changing it has no effect on the built URL?...
         'organism' => $organism->organism_id,
       ]);
 

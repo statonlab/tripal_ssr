@@ -6,27 +6,28 @@
  * @param $form
  * @param $form_state
  * @param null $organism
- * @param array $url_query
  *
  * @return mixed
  */
-function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL, $url_query = []) {
+function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL ) {
   global $base_url;
 
   $constructed_url = '';
   $i = 0;
-  foreach ($url_query as $key => $value) {
-    if ($i > 0) {
-      $constructed_url .= '&';
-    }
-    $constructed_url .= "{$key}={$value}";
-    $i++;
-
-    $form['hidden'][$key] = [
-      '#type' => 'value',
-      '#value' => $value,
-    ];
-  }
+//  dpm($url_query);
+//
+//  foreach ($url_query as $key => $value) {
+//    if ($i > 0) {
+//      $constructed_url .= '&';
+//    }
+//    $constructed_url .= "{$key}={$value}";
+//    $i++;
+//
+//    $form['hidden'][$key] = [
+//      '#type' => 'value',
+//      '#value' => $value,
+//    ];
+//  }
   $form['#attributes']['id'] = 'SSR-search-form';
 
   $form['organism'] = [
