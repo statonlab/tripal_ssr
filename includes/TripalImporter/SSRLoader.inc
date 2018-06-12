@@ -24,7 +24,8 @@ class SSRLoader extends TripalImporter {
    * An array containing the extensions of allowed file types.
    */
   public static $file_types = [
-    'txt', 'tsv'
+    'txt',
+    'tsv',
   ];
 
   /**
@@ -94,14 +95,19 @@ More information coming soon.</p>
   public function run() {
 
     $arguments = $this->arguments['run_args'];
+    $analysis_id = $arguments['analysis_id'];
     $file_path = $this->arguments['files'][0]['file_path'];
-    $this->tripal_ssr_import_ssr($file_path);
+    $this->tripal_ssr_import_ssr($file_path, $analysis_id);
   }
 
-  private function tripal_ssr_import_ssr($file_path) {
+
+  /**
+   * @param $file_path
+   * @param $analysis_id
+   */
+
+  private function tripal_ssr_import_ssr($file_path, $analysis_id) {
     //Read in the file, split the columns
-
-
     $file = new SplFileObject($file_path);
 
     // Loop until we reach the end of the file.
@@ -146,10 +152,16 @@ More information coming soon.</p>
 
       $ssr_feature = $this->get_ssr_feature($ssr_uniquename, $organism_id, $parent_feature_id);
 
-      //Add props to ssr_feature
-      $this->add_ssr_props($ssr_feature, $motif, $num_repeats,  $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size);
+      //associate ssr with this analysis
+      if ($analysis_id) {
+        $af = $this->associate_ssr_analysis($ssr_feature, $analysis_id);
+      }
 
-        //Add location information
+
+      //Add props to ssr_feature
+      $this->add_ssr_props($ssr_feature, $motif, $num_repeats, $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size);
+
+      //Add location information
       $this->insert_featureloc($ssr_feature, $parent_feature_id, $start_pos, $end_pos);
     }
   }
@@ -338,5 +350,27 @@ INSERT INTO {featureloc} (feature_id, srcfeature_id, fmin, fmax)
     $results = chado_query($sql, $args);
 
     return $results;
+  }
+
+  /**
+   * retrieves the analysisfeature record or, adds one.
+   * @param $ssr_feature_id
+   * @param $analysis_id
+   */
+  private function associate_ssr_analysis($ssr_feature_id, $analysis_id) {
+
+    $query = db_select('chado.analysisfeature', 'af')
+      ->fields('af', ['analysisfeature_id'])
+      ->condition('analysis_id', $analysis_id)
+      ->condition('feature_id', $ssr_feature_id);
+    $result = $query->execute()->fetchField();
+
+    if ($result) {
+      return $result;
+    }
+    return db_insert('chado.analysisfeature')
+      ->fields(['feature_id' => $ssr_feature_id, 'analysis_id' => $analysis_id])
+      ->execute();
+
   }
 }

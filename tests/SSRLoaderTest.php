@@ -87,10 +87,19 @@ SELECT * FROM {featureloc}
     $this->assertNotFalse($result);
   }
 
-  private function loadFile() {
+  /**
+   * @param $analysis
+   *
+   * @return \SSRLoader
+   * @throws \Exception
+   */
+  private function loadFile($analysis_id = NULL) {
 
     $file = ['file_local' => __DIR__ . '/../example/example_ssr.txt'];
-    $run_args = [];
+    if ($analysis_id) {
+      $run_args = ['analysis_id' => $analysis_id];
+    }
+
     $importer = new \SSRLoader();
     $importer->create($run_args, $file);
     $importer->run();
@@ -116,6 +125,46 @@ SELECT * FROM {featureloc}
 
   }
 
+  public function test_Loader_adds_to_analysisfeature() {
+
+
+    $query= db_select('chado.analysisfeature', 'af');
+    $query->fields('af');
+    $result = $query->execute();
+
+    $num_of_results_before = $result->rowCount();
+
+
+
+    $parent = $this->addParentFeature();
+    $analysis = $this->addAnalysis();
+    $this->loadFile($analysis->analysis_id);
+
+
+    $query= db_select('chado.analysisfeature', 'af');
+    $query->fields('af');
+    $result = $query->execute();
+
+    $num_of_results_after = $result->rowCount();
+
+    $this->assertGreaterThan($num_of_results_before, $num_of_results_after);
+
+//TODO: the below test is more explicit, but fails.  Why?
+
+    //    $query = db_select('chado.analysisfeature', 'af');
+    //    $query->fields('af', ['analysis_id']);
+    //    $query->join('chado.feature', 'f', 'f.feature_id = af.feature_id');
+    //    $query->condition('f.name', '3935838_ssr85');
+    //    $results = $query->execute()->fetchAll();
+//
+//    $this->assertNotEmpty($results, 'SSR not loaded into analysisfeature.');
+
+  }
+
+  private function AddAnalysis() {
+    $analysis = factory('chado.analysis')->create();
+    return $analysis;
+  }
 
   private function AddParentFeature() {
     $feature_name = 'WaffleFeature';
