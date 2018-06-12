@@ -85,12 +85,17 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
     if ($entity->chado_table == 'organism') {
       $count = $entity->so__microsatellite['und'][0]['count'];
 
+      $features = $items[0]['records'];
+
+
       $message = NULL;
 
-      if ($count > 0) {
-        $path = $entity->so__microsatellite['und'][0]['path'];
-        $message = 'There are <a href="/' . $path . '">' . $count . ' features with SSR annotations in this organism.</a>';
+      if ($count === 0) {
+        return NULL;
       }
+
+      $message = 'There are <strong>' . $count . ' SSR markers</strong> associated with <strong> '. count($features) . ' features</strong> with SSR annotations in this organism.';
+
       $organism = $entity->chado_record;
 
       $form = drupal_get_form('tripal_ssr_marker_search_form', TRUE, $organism->organism_id, [
@@ -98,7 +103,8 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
         'organism' => $organism->organism_id,
       ]);
 
-      $content = '<p>You can search this organism for SSR markers.  The search will return features associated with the matching markers.</p>';
+      $content = $message;
+      $content .= '<p>You can search this organism for SSR markers.  The search will return features associated with the matching markers.</p>';
       $content .= drupal_render($form);
       $element[] = [
         '#type' => 'markup',
@@ -108,7 +114,7 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       return $element;
     }
 
-//deal with feature case
+    //deal with feature case
     if ($entity->chado_table == 'feature') {
 
       $i = 0;
@@ -119,13 +125,13 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
 
       $header = [
         'name' => 'Name',
-        'unique_name' =>'Unique Name',
-        'tripal_ssr_motif' =>'Motif',
-        'tripal_ssr_repeats' =>'Number of Repeats',
-        'tripal_ssr_forward_primer' =>'Forward Primer',
-       'tripal_ssr_forward_tm'  => 'Forward Primer Tm',
-        'tripal_ssr_reverse_primer'=> 'Reverse Primer',
-        'tripal_ssr_reverse_tm'=> 'Reverse Primer Tm',
+        'unique_name' => 'Unique Name',
+        'tripal_ssr_motif' => 'Motif',
+        'tripal_ssr_repeats' => 'Number of Repeats',
+        'tripal_ssr_forward_primer' => 'Forward Primer',
+        'tripal_ssr_forward_tm' => 'Forward Primer Tm',
+        'tripal_ssr_reverse_primer' => 'Reverse Primer',
+        'tripal_ssr_reverse_tm' => 'Reverse Primer Tm',
         'tripal_ssr_product_size' => 'Product Size',
       ];
       $rows = [];
@@ -145,12 +151,6 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       ];
       return $element;
     }
-  }
-
-  public function esView(&$element, $entity_type, $entity, $langcode, $items, $display) {
-
-
-    return;
   }
 
   /**
@@ -183,13 +183,4 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
   public function settingsSummary($view_mode) {
   }
 
-  /**
-   * Searches for markers for the given organism.
-   * Will return the features associated with it.
-   *
-   * @param $search_term
-   */
-  public function query_ssr($search_term){
-
-  }
 }
