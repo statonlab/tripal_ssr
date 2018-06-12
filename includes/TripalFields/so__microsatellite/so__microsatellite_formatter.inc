@@ -94,7 +94,7 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
         return NULL;
       }
 
-      $message = 'There are <strong>' . $count . ' SSR markers</strong> associated with <strong> '. count($features) . ' features</strong> with SSR annotations in this organism.';
+      $message = 'There are <strong>' . $count . ' SSR markers</strong> associated with <strong> ' . count($features) . ' features</strong> with SSR annotations in this organism.';
 
       $organism = $entity->chado_record;
 
@@ -104,7 +104,7 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       ]);
 
       $content = $message;
-      $content .= '<p>You can search this organism for SSR markers.  The search will return features associated with the matching markers.</p>';
+      $content .= '<p>You can search for markers below: the form will return the gene features they are associated with.</p>';
       $content .= drupal_render($form);
       $element[] = [
         '#type' => 'markup',

@@ -1,12 +1,14 @@
 <?php
 
 /**
- * SSR search form
+ * SSR search form.
  *
  * @param $form
  * @param $form_state
+ * @param null $organism
+ * @param array $url_query
  *
- * @throws \Exception
+ * @return mixed
  */
 function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL, $url_query = []) {
   global $base_url;
@@ -92,7 +94,7 @@ function tripal_ssr_search_by_name($search_term) {
   $query->join('chado.feature_relationship', 'fr', 'fr.object_id = f.feature_id');
   $query->join('chado.feature', 'fssr', 'fr.subject_id = fssr.feature_id');
   $query->fields('fssr', ["name"]);
-  $query->condition('fssr.name', $search_term, 'LIKE');
+  $query->condition('fssr.name', '%' . $search_term . '%', 'LIKE');
   $query->condition('fssr.type_id', $ssrTerm->cvterm_id);
   $query->condition('fssr.organism_id', $organism);
   $results = $query->execute()->fetchAll();
@@ -100,7 +102,6 @@ function tripal_ssr_search_by_name($search_term) {
 
   foreach ($results as $result) {
     $entity_id = chado_get_record_entity_by_table('feature', $result->feature_id);
-   // $bundle_id = tripal_ssr_get_feature_bundle_id($entity_id);
     $url = 'bio_data/' . $entity_id;
     $result->url = $url;
   }
@@ -139,16 +140,4 @@ function tripal_ssr_results_formatter($search_results) {
     'header' => $header,
     'rows' => $rows,
   ]);
-}
-
-/**
- * @param $entity_id
- *
- * @return mixed | the term id
- */
-function tripal_ssr_get_feature_bundle_id($entity_id) {
-  $query = db_select('public.tripal_entity', 'te');
-  $query->fields('te', ['term_id']);
-  $query->condition('id', $entity_id);
-  return $query->execute()->fetchField();
 }
