@@ -93,30 +93,12 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       }
       $organism = $entity->chado_record;
 
-
-      try {
-
-          return NULL;
-      } catch (Exception $exception) {
-        $element[] = [
-          '#type' => 'markup',
-          '#markup' => t('<p>Search service is not available at this time. Please 
-                        contact us to fix this issue.</p>'),
-        ];
-        $message = "Feature search in organism {$organism->genus}
-                  {$organism->species} has failed with the following 
-                  message. " . $exception->getMessage();
-        tripal_report_error('tripal_elasticsearch', TRIPAL_ERROR, $message);
-        return;
-      }
-
-      $organism_name = "$organism->genus $organism->species";
-      $form = drupal_get_form('tripal_elasticsearch_gene_search_form', TRUE, $organism_name, [
-        'tripal_pane' => 'group_feature_search',
-        'organism' => $organism_name,
+      $form = drupal_get_form('tripal_ssr_marker_search_form', TRUE, $organism->organism_id, [
+        'tripal_pane' => 'group_ssr_search',
+        'organism' => $organism->organism_id,
       ]);
 
-      $content = '<p>You can search this organism’s features in the database by entering search terms in the box. You can search by feature name or annotation.</p>';
+      $content = '<p>You can search this organism for SSR markers.  The search will return features associated with the matching markers.</p>';
       $content .= drupal_render($form);
       $element[] = [
         '#type' => 'markup',
@@ -201,26 +183,13 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
   public function settingsSummary($view_mode) {
   }
 
+  /**
+   * Searches for markers for the given organism.
+   * Will return the features associated with it.
+   *
+   * @param $search_term
+   */
   public function query_ssr($search_term){
-
-    $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
-    $query = db_select('chado.feature', 'f');
-    $query->fields('f', ['feature_id', 'uniquename', 'name']);
-    $query->join('chado.feature_relationship', 'fr', 'f.object_id = f.feature_id');
-    $query->join('chado.feature', 'fssr', 'fr.subject_id = fssr.feature_id');
-    $query->condition('uniquename','LIKE', $search_term);
-    $query->condition('type_id', $ssrTerm->cvterm_id);
-    $result = $query->execute()->fetchAll();
-
-    $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
-    $query = db_select('chado.feature', 'f');
-    $query->fields('f', ['feature_id', 'uniquename', 'name']);
-    $query->join('chado.feature_relationship', 'fr', 'f.object_id = f.feature_id');
-    $query->join('chado.feature', 'fssr', 'fr.subject_id = fssr.feature_id');
-    $query->join('chado.featureprop', 'fp', 'f.feature_id = fp.feature_id');
-    $query->condition('type_id', $ssrTerm->cvterm_id);
-
-
 
   }
 }
