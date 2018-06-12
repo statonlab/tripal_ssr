@@ -150,7 +150,7 @@ SELECT * FROM {featureloc}
     $this->assertGreaterThan($num_of_results_before, $num_of_results_after);
 
 //TODO: the below test is more explicit, but fails.  Why?
-    
+
     //    $query = db_select('chado.analysisfeature', 'af');
     //    $query->fields('af', ['analysis_id']);
     //    $query->join('chado.feature', 'f', 'f.feature_id = af.feature_id');
