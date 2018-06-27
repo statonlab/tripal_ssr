@@ -239,8 +239,11 @@ class so__microsatellite extends ChadoField {
     if (!$organism_id) {
       return FALSE;
     }
-    $sql = 'SELECT feature_id FROM {feature_ssr_mview} WHERE organism_id = :organism_id';
-    $result = chado_query($sql, [':organism_id' => $organism_id])->fetchAssoc();
+    $query = db_select('chado.feature', 'f')
+      ->fields('f', ['feature_id'])
+      ->condition('f.organism_id', $organism_id);
+
+    $result = $query->execute()->fetchAssoc();
     return $result;
   }
 
@@ -256,8 +259,14 @@ class so__microsatellite extends ChadoField {
       return FALSE;
     }
 
-    $sql = 'SELECT COUNT(feature_id) as features_count FROM {feature_ssr_mview} WHERE organism_id = :organism_id';
-    $result = chado_query($sql, [':organism_id' => $organism_id])->fetchObject()->features_count;
+    $ssr_cvterm = chado_get_cvterm(['id' => 'SO:0000289']);
+    $ssr_type_id = $ssr_cvterm->cvterm_id;
+
+    $sql = 'SELECT COUNT(feature_id) as features_count FROM {feature} WHERE organism_id = :organism_id AND type_id = :type_id';
+    $result = chado_query($sql, [
+      ':organism_id' => $organism_id,
+      ':type_id' => $ssr_type_id
+    ])->fetchObject()->features_count;
 
     return $result;
   }
@@ -266,16 +275,4 @@ class so__microsatellite extends ChadoField {
     $path = "ssr-features/{$genus}/{$species}";
     return ($path);
   }
-
-  //below function create a link to the file download.  For now, let's link to the view instead.
-
-  //protected function create_ssr_url($genus, $species)
-  //{
-  //    $path = variable_get('file_public_path', conf_path().'/files')."/ssr_downloads/{$genus}_{$species}.ssr.fasta";
-  //    if (file_exists($path)) {
-  //        return $path;
-  //    }
-  //
-  //    //return null;
-  //}
 }

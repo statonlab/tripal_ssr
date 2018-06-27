@@ -3,9 +3,6 @@
 function tripal_ssr_install() {
 
   tripal_ssr_install_local_terms();
-  tripal_ssr_add_ssr_mview();
-  // tripal_ssr_add_bulk_loader();
-
 }
 
 function tripal_ssr_define_bundles() {
@@ -82,96 +79,6 @@ function tripal_ssr_install_local_terms() {
   ]);
 }
 
-function tripal_ssr_add_ssr_mview() {
-  $view_name = 'feature_ssr_mview';
-
-  $mv = [
-    'description' => 'Stores features that have associated SSR data',
-    'table' => 'feature_ssr_mview',
-    'fields' => [
-      'analysis_id' => [
-        'type' => 'int',
-        'not null' => FALSE,
-      ],
-      'organism_id' => [
-        'type' => 'int',
-        'not null' => TRUE,
-      ],
-      'common_name' => [
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-      ],
-      'genus' => [
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-      ],
-      'species' => [
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-      ],
-      'feature_id' => [
-        'type' => 'int',
-        'not null' => TRUE,
-      ],
-      'name' => [
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-      ],
-      'uniquename' => [
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-      ],
-      'type' => [
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-      ],
-      'ssr_feature_id' => [
-        'type' => 'int',
-        'not null' => TRUE,
-      ],
-      'ssr_uniquename' => [
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-      ],
-    ],
-    'indexes' => [
-      'analysis_id_idx' => [
-        0 => 'analysis_id',
-      ],
-      'organism_id_idx' => [
-        0 => 'organism_id',
-      ],
-      'feature_id_idx' => [
-        0 => 'feature_id',
-      ],
-    ],
-  ];
-
-  $query = "SELECT DISTINCT
-              AF.analysis_id, O.organism_id, O.common_name, O.genus, O.species, F.feature_id, F.name, F.uniquename, CVTF.name, FTWO.feature_id, FTWO.uniquename
-            FROM organism O
-              INNER JOIN feature F ON O.organism_id = F.organism_id
-              INNER JOIN feature_relationship FR ON F.feature_id = FR.object_id
-              INNER JOIN feature FTWO ON FR.subject_id = FTWO.feature_id
-              INNER JOIN cvterm CVTF ON F.type_id = CVTF.cvterm_id
-              INNER JOIN analysisfeature AF ON F.feature_id = AF.feature_id
-              INNER JOIN cvterm CVTFTWO ON FTWO.type_id = CVTFTWO.cvterm_id
-            WHERE
-              CVTFTWO.name = 'microsatellite'";
-
-  $comment = 'This materialized view is used to associate an organism_id and an analysis_id with a feature that has a feature_relationship with an SSR feature.';
-
-  $redirect = FALSE;
-  chado_add_mview($view_name, 'tripal_ssr', $mv, $query, $comment, $redirect);
-}
-
 /**
  * Adds the bulk loader.  Because we do some things with feature location now,
  * we just dont do this anymore. This is a general bulk loader.  It will fail
@@ -203,6 +110,13 @@ function tripal_ssr_add_bulk_loader() {
   $errors = [];
   $warnings = [];
   tripal_insert_bulk_loader_template($options, $errors, $warnings);
+}
+
+function tripal_ssr_update_7200(){
+  $mview = chado_get_mview_id('feature_ssr_mview');
+  if ($mview) {
+    chado_delete_mview($mview);
+  }
 }
 
 function tripal_ssr_uninstall() {
