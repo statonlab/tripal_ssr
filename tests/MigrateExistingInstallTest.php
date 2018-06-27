@@ -5,8 +5,9 @@ namespace Tests;
 use StatonLab\TripalTestSuite\DBTransaction;
 use StatonLab\TripalTestSuite\TripalTestCase;
 
-module_load_include('install', 'tripal_ssr', 'tripal_ssr');
-//require_once('../tripal_ssr.install');
+//module_load_include('install', 'tripal_ssr', 'tripal_ssr');
+//require_once(__DIR__ . '/../tripal_ssr.install');
+//cant get this to work! moving function to .module.
 
 class MigrateExistingInstallTest extends TripalTestCase {
 
@@ -17,7 +18,7 @@ class MigrateExistingInstallTest extends TripalTestCase {
     $mrna_term = chado_get_cvterm(['id' => 'SO:0000234']);
     $feature = factory('chado.feature')->create(['type_id' => $mrna_term->cvterm_id]);
     $this->addOldStyleProps($feature);
-    \tripal_ssr_migrate_existing_ssrs();
+   \tripal_ssr_migrate_existing_ssrs();
 
     //verify old props are gone
     $query = db_select('chado.feature', 'f');

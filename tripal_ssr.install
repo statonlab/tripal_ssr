@@ -1,4 +1,5 @@
 <?php
+namespace Tripal_SSR;
 
 function tripal_ssr_install() {
 
@@ -210,9 +211,5 @@ function tripal_ssr_uninstall() {
   $mview = chado_get_mview_id('feature_ssr_mview');
   if ($mview) {
     chado_delete_mview($mview);
-  }
-
-  function tripal_ssr_migrate_existing_ssrs(){
-
   }
 }

@@ -104,3 +104,38 @@ function tripal_ssr_theme($existing, $type, $theme, $path) {
   ];
   return $items;
 }
+
+function tripal_ssr_migrate_existing_ssrs(){
+//get all features that have SSRs.
+
+  $query = db_select('chado.feature', 'f');
+  $query->fields('f', ['feature_id']);
+  $query->join('chado.featureprop', 'fp', 'fp.feature_id = f.feature_id');
+  $query->join('chado.cvterm', 'cvt', 'cvt.cvterm_id = fp.type_id');
+  $query->condition('cvt.name', 'tripal_ssr_motif');
+  $query->execute()->fetchAll();
+
+  foreach ($query as $result){
+    $parent_id = $result->feature_id;
+
+    $record = ['table' => 'feature', 'id' => $parent_id];
+
+    $query = db_select('chado.featureprop', 'fp');
+    $query->fields('fp', ['value']);
+    $query->join('cvterm', 'cvt', 'cvt.cvterm_id = fp.type_id');
+    $query->condition('cvterm.name',['tripal_ssr_motif', 'tripal_ssr_repeats', 'tripal_ssr_forward_primer', 'tripal_ssr_reverse_primer', 'tripal_ssr_forward_tm', 'tripal_ssr_reverse_tm', 'tripal_ssr_product_size'] , 'IN');
+
+$query->execute()->fetchAssoc();
+
+    //create the new feature and decorate it
+
+
+    //delete the old props
+
+  }
+
+}
+
+function tripal_ssr_return_master_props(){
+
+}
