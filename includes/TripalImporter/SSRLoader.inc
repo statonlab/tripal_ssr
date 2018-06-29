@@ -98,8 +98,11 @@ More information coming soon.</p>
     $analysis_id = $arguments['analysis_id'];
     $file_path = $this->arguments['files'][0]['file_path'];
     $this->tripal_ssr_import_ssr($file_path, $analysis_id);
+
   }
 
+  private function tripal_ssr_import_ssr($file_path, $analysis_id) {
+    //Read in the file, split the columns
 
   /**
    * @param $file_path
@@ -152,12 +155,7 @@ More information coming soon.</p>
 
       $ssr_feature = $this->get_ssr_feature($ssr_uniquename, $organism_id, $parent_feature_id);
 
-      //associate ssr with this analysis
-      if ($analysis_id) {
-        $af = $this->associate_ssr_analysis($ssr_feature, $analysis_id);
-      }
-
-
+      $this->associate_feature_analysisfeature($ssr_feature, $analysis_id);
       //Add props to ssr_feature
       $this->add_ssr_props($ssr_feature, $motif, $num_repeats, $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size);
 
@@ -247,6 +245,33 @@ More information coming soon.</p>
   }
 
   /**
+   * Associates the ssr feature with the analysis via analysisfeature
+   *
+   * @param $ssr_feature_id
+   * @param $analysis_id
+   *
+   * @return mixed
+   */
+  function associate_feature_analysisfeature($ssr_feature_id, $analysis_id) {
+
+    $result = db_select('chado.analysisfeature', 'af')
+      ->fields('af', ['analysisfeature_id'])
+      ->condition('feature_id', $ssr_feature_id)
+      ->condition('analysis_id', $analysis_id)
+      ->execute()
+      ->fetchField();
+
+    if (!$result) {
+      $result = db_insert('chado.analysisfeature')
+        ->fields([
+          'feature_id' => $ssr_feature_id,
+          'analysis_id' => $analysis_id,
+        ])->execute();
+    }
+    return $result;
+  }
+
+  /**
    * Adds properties to the sSR feature
    *
    * @param $feature_id
@@ -326,19 +351,8 @@ More information coming soon.</p>
    */
   private function insert_featureloc($ssr_feature, $parent_feature, $fmin, $fmax) {
 
-    //    $insert = db_insert('chado.featureloc');
-    //    $insert->fields([
-    //      'feature_id' => $ssr_feature,
-    //      'srcfeature_id' => $parent_feature,
-    //      'fmin' =>  (int) $fmin,
-    //      'fmax' => (int) $fmax,
-    //    ])->searchpath('chado','public');
-    //    $outcome = $insert->execute();
-
-    //I dont know how to set searchpath in the drupal query builder so lets use chado_query instead.
-
     $sql = 'SET search_path to chado, public;
-INSERT INTO {featureloc} (feature_id, srcfeature_id, fmin, fmax)
+      INSERT INTO {featureloc} (feature_id, srcfeature_id, fmin, fmax)
       VALUES (:feature_id, :srcfeature_id, :fmin, :fmax)';
 
     $args = [

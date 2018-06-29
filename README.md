@@ -26,18 +26,11 @@ The bulk loader expects a  tab-delimited file on the server with the following 9
 | size  | The expected size of the PCR product  |
 
 ## Materialized view
-The `tripal_ssr` module utilizes a materialized view table.  Once your data is loaded, you must populate the view.  Tripal->Data_Storage->Materialized_Views, click to populate the tripal_ssr mview, and run the job.
-
-## Custom view
-
-A custom view should be manually created by the site administrator to list all SSRs assocaited with a given organism, and to provide a link to all SSRs in `fasta` format. 
-
-More documentation will be added soon.
-
+The `tripal_ssr` module no longer uses a materialized view.
 
 ## Chado tables
 
-`tripal_ssr` make use of two Chado table: `featureprop` and `tripal_ssr_mview`.  The bulk loader adds columns 2-9 of the above input file into `featureprop` for the specified feature.  The `tripal_ssr_mview` table, when populated, tracks which features were annotated with SSRs for each organism.
+`tripal_ssr` make use of two Chado table: `featureprop` and `tripal_ssr_mview`.  The bulk loader adds columns 2-9 of the above input file into `featureprop` for the specified feature.
 
 
 ## Tripal 3
