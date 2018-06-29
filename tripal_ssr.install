@@ -77,6 +77,14 @@ function tripal_ssr_install_local_terms() {
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
   ]);
+
+
+  tripal_insert_cvterm([
+    'name' => 'tripal_associated_ssr',
+    'def' => 'This feature has predicted or confirmed SSRs associated with it.',
+    'cv_name' => 'feature_property',
+    'db_name' => 'tripal',
+  ]);
 }
 
 /**
@@ -112,11 +120,23 @@ function tripal_ssr_add_bulk_loader() {
   tripal_insert_bulk_loader_template($options, $errors, $warnings);
 }
 
-function tripal_ssr_update_7200(){
+function tripal_ssr_update_7200() {
   $mview = chado_get_mview_id('feature_ssr_mview');
   if ($mview) {
     chado_delete_mview($mview);
   }
+}
+
+/**
+ * Add associated ssrs cvterm
+ */
+function tripal_ssr_update_7201() {
+  tripal_insert_cvterm([
+    'name' => 'tripal_associated_ssr',
+    'def' => 'This feature has predicted or confirmed SSRs associated with it.',
+    'cv_name' => 'feature_property',
+    'db_name' => 'tripal',
+  ]);
 }
 
 function tripal_ssr_uninstall() {

@@ -151,6 +151,20 @@ SELECT * FROM {featureloc}
     $this->assertNotEmpty($result);
   }
 
+  public function testParentHasProp() {
+
+    $parent = $this->addParentFeature();
+
+    $prop_type = chado_get_cvterm(['id' => 'tripal:tripal_associated_ssr']);
+    $this->loadFile();
+    $query = db_select('chado.featureprop', 'f');
+    $query->fields('f', ['value']);
+    $query->condition('type_id', $prop_type->cvterm_id);
+    $result = $query->execute()->fetchAll();
+    $this->assertNotEmpty($result);
+
+  }
+
   private function AddParentFeature() {
     $feature_name = 'WaffleFeature';
     $feature = factory('chado.feature')->create([
