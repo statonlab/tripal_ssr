@@ -74,14 +74,18 @@ class SSRLoader extends TripalImporter {
     $form['instructions'] = [
       '#markup' => '
 <h2>An SSR importer.</h2>
-<p>
-More information coming soon.</p>
+<p>More information coming soon.</p>
 ',
+    ];
+    $form['regexp'] = [
+      '#type' => 'textfield',
+      '#name' => 'Regular expression for parent',
+      '#description' => 'A regular expression that uniquely defines the parent.  Use this field with a 10 column file, the first column being an SSR name that also contains the parent.',
     ];
 
     return $form;
   }
-
+  
   /**
    * @see TripalImporter::formValidate()
    */
@@ -96,51 +100,71 @@ More information coming soon.</p>
 
     $arguments = $this->arguments['run_args'];
     $analysis_id = $arguments['analysis_id'];
+    $parent_regex = isset($arguments['regexp']) ? $arguments['regexp'] : NULL;
+
     $file_path = $this->arguments['files'][0]['file_path'];
-    $this->tripal_ssr_import_ssr($file_path, $analysis_id);
+    $this->tripal_ssr_import_ssr($file_path, $analysis_id, $parent_regex);
 
   }
 
-    //Read in the file, split the columns
+  //Read in the file, split the columns
 
   /**
    * @param $file_path
    * @param $analysis_id
+   * @param $regexp
    */
 
-  private function tripal_ssr_import_ssr($file_path, $analysis_id) {
+  private function tripal_ssr_import_ssr($file_path, $analysis_id, $regexp = NULL) {
     //Read in the file, split the columns
     $file = new SplFileObject($file_path);
 
     // Loop until we reach the end of the file.
-
     $parent_id = NULL;
 
     while (!$file->eof()) {
       // Echo one line from the file.
       $line = $file->fgets();
-      $split = explode("\t", $line);
-
-      if (count($split) != 11) {
-        print "Error: Input file should be an 11 column tab delimited file";
-        return;
+      $split = $this->parse_line($line, $regexp);
+      if (!$split) {
+        continue;
       }
 
-      $parent_feature_uniquename = $split[0];
-      $ssr_uniquename = $split[1];
-      $motif = $split[2];
-      $num_repeats = $split[3];
-      $start_pos = $split[4]; //start position of SSR relative to parent
-      $end_pos = $split[5];
-      $f_primer = $split[6];//forward primer
-      $r_primer = $split[7];
-      $f_primer_tm = $split[8];
-      $r_primer_tm = $split[9];
-      $product_size = $split[10];
+      if ($regexp) {
+        $features = $split[0];
 
-      //skip headers
-      if ($parent_feature_uniquename == 'Feature_ID' || strtolower($motif) === 'motif') {
-        continue;
+        preg_match($regexp, $features, $matches);
+
+        if (!$matches[0]) {
+          print "Error: Could not parse parent feature given regular expression " . $regexp . " for entry " . $features . "!\n";
+          return;
+        }
+
+        $parent_feature_uniquename = $matches[0];
+
+        $ssr_uniquename = $split[0];
+        $motif = $split[1];
+        $num_repeats = $split[2];
+        $start_pos = $split[3]; //start position of SSR relative to parent
+        $end_pos = $split[4];
+        $f_primer = $split[5];//forward primer
+        $r_primer = $split[6];
+        $f_primer_tm = $split[7];
+        $r_primer_tm = $split[8];
+        $product_size = $split[9];
+      }
+      else {
+        $parent_feature_uniquename = $split[0];
+        $ssr_uniquename = $split[1];
+        $motif = $split[2];
+        $num_repeats = $split[3];
+        $start_pos = $split[4]; //start position of SSR relative to parent
+        $end_pos = $split[5];
+        $f_primer = $split[6];//forward primer
+        $r_primer = $split[7];
+        $f_primer_tm = $split[8];
+        $r_primer_tm = $split[9];
+        $product_size = $split[10];
       }
 
       $parent_feature = $this->find_parent_feature($parent_feature_uniquename);
@@ -161,6 +185,26 @@ More information coming soon.</p>
       //Add location information
       $this->insert_featureloc($ssr_feature, $parent_feature_id, $start_pos, $end_pos);
     }
+  }
+
+  function parse_line($line, $regexp) {
+    $split = explode("\t", $line);
+
+    if ($regexp && count($split) != 10) {
+      print "Error: Input file should be an 10 column tab delimited file if supplying a regular expression.";
+      return;
+    }
+
+    if (!$regexp && count($split) != 11) {
+      print "Error: Input file should be an 11 column tab delimited file";
+      return;
+    }
+
+    //skip headers
+    if ($split[0] == 'Feature_ID' || $split[0] == 'ID') {
+      return NULL;
+    }
+    return $split;
   }
 
   /**
@@ -367,6 +411,7 @@ More information coming soon.</p>
 
   /**
    * retrieves the analysisfeature record or, adds one.
+   *
    * @param $ssr_feature_id
    * @param $analysis_id
    */
