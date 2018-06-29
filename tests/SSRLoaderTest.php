@@ -88,17 +88,21 @@ SELECT * FROM {featureloc}
   }
 
   /**
-   * @param $analysis
    *
    * @return \SSRLoader
    * @throws \Exception
    */
-  private function loadFile($analysis_id = NULL) {
+  private function loadFile($file_name = 'example_ssr.txt', $regexp = NULL) {
 
-    $file = ['file_local' => __DIR__ . '/../example/example_ssr.txt'];
+    $file = ['file_local' => __DIR__ . '/../example/' . $file_name];
 
     $analysis = factory('chado.analysis')->create(['name' => 'ssr_example_test']);
+
+
     $run_args = ['analysis_id' => $analysis->analysis_id];
+    if ($regexp) {
+      $run_args['regexp'] = $regexp;
+    }
     $importer = new \SSRLoader();
     $importer->create($run_args, $file);
     $importer->run();
@@ -124,7 +128,17 @@ SELECT * FROM {featureloc}
 
   }
 
-  public function test_importer_adds_to_analysisfeature(){
+  public function test_regexp_for_parent() {
+    $parent = $this->addParentFeature();
+    $this->loadFile('regex_example.txt', '/WaffleFeature/');
+    $query = db_select('chado.feature', 'f')
+      ->fields('f', ['name', 'type_id'])
+      ->condition('name', 'WaffleFeature_3935838_ssr85');
+    $result = $query->execute()->FetchAll();
+    $this->assertNotEmpty($result, 'Could not find example feature that was loaded with regexpression');
+  }
+
+  public function test_importer_adds_to_analysisfeature() {
 
     $parent = $this->addParentFeature();
 
