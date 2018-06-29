@@ -101,7 +101,6 @@ More information coming soon.</p>
 
   }
 
-  private function tripal_ssr_import_ssr($file_path, $analysis_id) {
     //Read in the file, split the columns
 
   /**

@@ -80,7 +80,7 @@ Factory::define('chado.analysis', function (Faker\Generator $faker) {
     'description' => $faker->name,
     'program' => $faker->unique()->name,
     'programversion' => $faker->unique()->name,
-    'sourcename' => $faker->unique()->name
+    'sourcename' => $faker->unique()->name,
     'algorithm' => $faker->name,
     'sourcename' => $faker->name,
     'sourceversion' => $faker->name,
