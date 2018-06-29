@@ -74,14 +74,18 @@ class SSRLoader extends TripalImporter {
     $form['instructions'] = [
       '#markup' => '
 <h2>An SSR importer.</h2>
-<p>
-More information coming soon.</p>
+<p>More information coming soon.</p>
 ',
+    ];
+    $form['regexp'] = [
+      '#type' => 'textfield',
+      '#name' => 'Regular expression for parent',
+      '#description' => 'A regular expression that uniquely defines the parent.  Use this field with a 10 column file, the first column being an SSR name that also contains the parent.',
     ];
 
     return $form;
   }
-
+  
   /**
    * @see TripalImporter::formValidate()
    */
@@ -197,7 +201,7 @@ More information coming soon.</p>
     }
 
     //skip headers
-    if ($split[0] == 'Feature_ID' ||$split[0] == 'ID') {
+    if ($split[0] == 'Feature_ID' || $split[0] == 'ID') {
       return NULL;
     }
     return $split;
