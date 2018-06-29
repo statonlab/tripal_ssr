@@ -87,9 +87,16 @@ SELECT * FROM {featureloc}
     $this->assertNotFalse($result);
   }
 
-  private function loadFile() {
+  /**
+   * @param $analysis
+   *
+   * @return \SSRLoader
+   * @throws \Exception
+   */
+  private function loadFile($analysis_id = NULL) {
 
     $file = ['file_local' => __DIR__ . '/../example/example_ssr.txt'];
+
     $analysis = factory('chado.analysis')->create(['name' => 'ssr_example_test']);
     $run_args = ['analysis_id' => $analysis->analysis_id];
     $importer = new \SSRLoader();
@@ -129,7 +136,6 @@ SELECT * FROM {featureloc}
     $result = $query->execute()->fetchAll();
     $this->assertNotEmpty($result);
   }
-
 
   private function AddParentFeature() {
     $feature_name = 'WaffleFeature';

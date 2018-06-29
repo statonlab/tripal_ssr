@@ -78,8 +78,9 @@ Factory::define('chado.analysis', function (Faker\Generator $faker) {
   return [
     'name' => $faker->name,
     'description' => $faker->name,
-    'program' => $faker->name,
-    'programversion' => $faker->name,
+    'program' => $faker->unique()->name,
+    'programversion' => $faker->unique()->name,
+    'sourcename' => $faker->unique()->name
     'algorithm' => $faker->name,
     'sourcename' => $faker->name,
     'sourceversion' => $faker->name,
@@ -87,5 +88,3 @@ Factory::define('chado.analysis', function (Faker\Generator $faker) {
     // 'timeexecuted' => $faker->time()// needs to match 2018-03-23 15:08:00.000000
   ];
 });
-
-

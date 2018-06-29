@@ -95,8 +95,8 @@ More information coming soon.</p>
   public function run() {
 
     $arguments = $this->arguments['run_args'];
-    $file_path = $this->arguments['files'][0]['file_path'];
     $analysis_id = $arguments['analysis_id'];
+    $file_path = $this->arguments['files'][0]['file_path'];
     $this->tripal_ssr_import_ssr($file_path, $analysis_id);
 
   }
@@ -104,7 +104,13 @@ More information coming soon.</p>
   private function tripal_ssr_import_ssr($file_path, $analysis_id) {
     //Read in the file, split the columns
 
+  /**
+   * @param $file_path
+   * @param $analysis_id
+   */
 
+  private function tripal_ssr_import_ssr($file_path, $analysis_id) {
+    //Read in the file, split the columns
     $file = new SplFileObject($file_path);
 
     // Loop until we reach the end of the file.
@@ -358,5 +364,27 @@ More information coming soon.</p>
     $results = chado_query($sql, $args);
 
     return $results;
+  }
+
+  /**
+   * retrieves the analysisfeature record or, adds one.
+   * @param $ssr_feature_id
+   * @param $analysis_id
+   */
+  private function associate_ssr_analysis($ssr_feature_id, $analysis_id) {
+
+    $query = db_select('chado.analysisfeature', 'af')
+      ->fields('af', ['analysisfeature_id'])
+      ->condition('analysis_id', $analysis_id)
+      ->condition('feature_id', $ssr_feature_id);
+    $result = $query->execute()->fetchField();
+
+    if ($result) {
+      return $result;
+    }
+    return db_insert('chado.analysisfeature')
+      ->fields(['feature_id' => $ssr_feature_id, 'analysis_id' => $analysis_id])
+      ->execute();
+
   }
 }

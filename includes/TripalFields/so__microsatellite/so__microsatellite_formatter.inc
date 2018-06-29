@@ -81,24 +81,51 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
    */
   public function view(&$element, $entity_type, $entity, $langcode, $items, $display) {
 
+    //deal with organism case
     if ($entity->chado_table == 'organism') {
       $count = $entity->so__microsatellite['und'][0]['count'];
 
+      $features = $items[0]['records'];
+
+
       $message = NULL;
 
-      if ($count > 0) {
-        $path = $entity->so__microsatellite['und'][0]['path'];
-        $message = 'There are <a href="/' . $path . '">' . $count . ' features with SSR annotations in this organism.</a>';
+      if ($count === 0) {
+        return NULL;
       }
-      if ($message) {
-        $element[0] = [
-          '#type' => 'markup',
-          '#markup' => $message,
-        ];
-      }
+
+      $message = 'There are <strong>' . $count . ' SSR markers</strong> associated with <strong> ' . count($features) . ' features</strong> with SSR annotations in this organism.';
+
+      $organism = $entity->chado_record;
+
+     $analyses =  $this->tripal_ssr_get_associated_analyses($organism->organism_id);
+
+if ($analyses){
+  $message .= '<p>The complete list of SSR markers, their properties, and primers to amplify then can be found on the corresponding analysis page.</p>';
+
+  $message .= $this->render_ssr_analysis_table($analyses);
+
+}
+
+
+      $form = drupal_get_form('tripal_ssr_marker_search_form', TRUE, $organism->organism_id, [
+        'tripal_pane' => 'group_ssr_search',
+        //NOTE: this doesnt do what i think it does, changing it has no effect on the built URL?...
+        'organism' => $organism->organism_id,
+      ]);
+
+      $content = $message;
+      $content .= '<p>You can search for markers below: the form will return the gene features they are associated with.</p>';
+      $content .= drupal_render($form);
+      $element[] = [
+        '#type' => 'markup',
+        '#markup' => $content,
+      ];
+
       return $element;
     }
 
+    //deal with feature case
     if ($entity->chado_table == 'feature') {
 
       $i = 0;
@@ -109,13 +136,13 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
 
       $header = [
         'name' => 'Name',
-        'unique_name' =>'Unique Name',
-        'tripal_ssr_motif' =>'Motif',
-        'tripal_ssr_repeats' =>'Number of Repeats',
-        'tripal_ssr_forward_primer' =>'Forward Primer',
-       'tripal_ssr_forward_tm'  => 'Forward Primer Tm',
-        'tripal_ssr_reverse_primer'=> 'Reverse Primer',
-        'tripal_ssr_reverse_tm'=> 'Reverse Primer Tm',
+        'unique_name' => 'Unique Name',
+        'tripal_ssr_motif' => 'Motif',
+        'tripal_ssr_repeats' => 'Number of Repeats',
+        'tripal_ssr_forward_primer' => 'Forward Primer',
+        'tripal_ssr_forward_tm' => 'Forward Primer Tm',
+        'tripal_ssr_reverse_primer' => 'Reverse Primer',
+        'tripal_ssr_reverse_tm' => 'Reverse Primer Tm',
         'tripal_ssr_product_size' => 'Product Size',
       ];
       $rows = [];
@@ -166,4 +193,33 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
    */
   public function settingsSummary($view_mode) {
   }
+
+  public function tripal_ssr_get_associated_analyses($organism_id) {
+    $ssr_term = chado_get_cvterm(['id' => 'SO:0000289']);
+    $query = db_select('chado.organism', 'o');
+    $query->distinct();
+    $query->join('chado.feature', 'f', 'o.organism_id = f.organism_id');
+    $query->join('chado.analysisfeature', 'af', 'f.feature_id = af.feature_id');
+    $query->join('chado.analysis', 'a', 'a.analysis_id = af.analysis_id');
+    $query->condition('f.type_id', $ssr_term->cvterm_id);
+    $query->condition('o.organism_id', $organism_id);
+    $query->fields('a', ['analysis_id', 'name']);
+    return $query->execute()->fetchAll();
+  }
+
+  private function render_ssr_analysis_table($results){
+    $header = ['Analysis Name'];
+    $rows = [];
+    foreach ($results as $result ){
+      $analysis_id = $result->analysis_id;
+      $name = $result->name;
+      $entity_id = chado_get_record_entity_by_table('analysis', $analysis_id);
+      $rows[] = [l($name, '/bio_data/'. $entity_id)];
+    }
+    return theme('table', [
+      'header' => $header,
+      'rows' => $rows,
+    ]);
+  }
 }
+
