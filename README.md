@@ -3,14 +3,15 @@
 
 This module displays **SSR (simple sequence repeat)** data.  It assumes you have identified SSRs in your data and would like to annotate your features with these SSRs.  
 
-The Tripal SSR module is not considered a complete module: this is why the version tag is `7.x-0.1-pre-pre-pre-alpha`.
+## Generating data
 
+[SSRs can be predicted using these script](https://github.com/mestato/lab_code/tree/master/hwg_gssr_scripts).  Alternatively SSRs can be experimentally determined and put into a spreadsheet that meets the criteria below.
 
 ## Loading data
 
-SSR data is loaded using the `tripal_bulk_loader` module.  When the module is installed, a custom data loader should be added to the bulk loader admin panel (Admin->Tripal->Data_Loaders->Bulk_Loader).  Click **Add Bulk Loading Job** to ue the loader template.  The template can be viewed by clicking on the Templates tab. 
+SSR data is loaded using a TripalImporter.  
 
-The bulk loader expects a  tab-delimited file on the server with the following 9 columns:
+The Importer expects a  tab-delimited file on the server with the following 9 columns:
 
 |  column |description   | 
 |---|---|
@@ -24,13 +25,6 @@ The bulk loader expects a  tab-delimited file on the server with the following 9
 | ftm  | The forward primer's calculated Tm  |
 | rtm  |  The reverse primer's calculated Tm |
 | size  | The expected size of the PCR product  |
-
-## Materialized view
-The `tripal_ssr` module no longer uses a materialized view.
-
-## Chado tables
-
-`tripal_ssr` make use of two Chado table: `featureprop` and `tripal_ssr_mview`.  The bulk loader adds columns 2-9 of the above input file into `featureprop` for the specified feature.
 
 
 ## Tripal 3
