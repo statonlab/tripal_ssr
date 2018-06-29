@@ -234,6 +234,8 @@ class SSRLoader extends TripalImporter {
 
     $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
 
+    var_dump($ssrTerm);
+    
     $query = db_select('chado.feature', 'f');
     $query->fields('f', ['feature_id']);
     $query->condition('uniquename', $ssr_uniquename);
@@ -243,8 +245,10 @@ class SSRLoader extends TripalImporter {
     if (!$result) {
       // Doesnt exist so insert
       $values = [
+        'dbxref_id' => NULL,
         'organism_id' => $organism_id,
         'name' => $ssr_uniquename,
+        'residues' => NULL,
         'uniquename' => $ssr_uniquename,
         'type_id' => $ssrTerm->cvterm_id,
       ];
