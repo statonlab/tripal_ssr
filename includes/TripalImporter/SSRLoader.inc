@@ -85,7 +85,7 @@ class SSRLoader extends TripalImporter {
 
     return $form;
   }
-  
+
   /**
    * @see TripalImporter::formValidate()
    */
@@ -182,6 +182,7 @@ class SSRLoader extends TripalImporter {
       //Add props to ssr_feature
       $this->add_ssr_props($ssr_feature, $motif, $num_repeats, $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size);
 
+      $this->add_parent_props($parent_feature_id, $ssr_uniquename);
       //Add location information
       $this->insert_featureloc($ssr_feature, $parent_feature_id, $start_pos, $end_pos);
     }
@@ -429,6 +430,20 @@ class SSRLoader extends TripalImporter {
     return db_insert('chado.analysisfeature')
       ->fields(['feature_id' => $ssr_feature_id, 'analysis_id' => $analysis_id])
       ->execute();
+  }
 
+  private function add_parent_props($parent_id, $ssr_uniquename) {
+
+    $record = ['id' => $parent_id, 'table' => 'feature'];
+    $options = ['update_if_present' => TRUE];
+
+    $property = [
+      'type_name' => 'tripal_associated_ssr',
+      'cv_name' => 'feature_property',
+      'value' => $ssr_uniquename,
+    ];
+    if (!chado_insert_property($record, $property, $options)) {
+      tripal_report_error('Tripal SSR', TRIPAL_ERROR, "Could not add property Associated SSR to parent feature");
+    }
   }
 }
