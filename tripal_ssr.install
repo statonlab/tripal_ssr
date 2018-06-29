@@ -16,6 +16,7 @@ function tripal_ssr_install_local_terms() {
     'accession' => 'associated_with',
     'cv_name' => 'sequence',
     'db_name' => 'SO',
+    'is_relationship_type' => 1
   ]);
 
 
@@ -118,6 +119,7 @@ function tripal_ssr_update_7202(){
     'accession' => 'associated_with',
     'cv_name' => 'sequence',
     'db_name' => 'SO',
+    'is_relationship_type' => 1
   ]);
 }
 

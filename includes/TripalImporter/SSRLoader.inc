@@ -234,8 +234,6 @@ class SSRLoader extends TripalImporter {
 
     $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
 
-    var_dump($ssrTerm);
-    
     $query = db_select('chado.feature', 'f');
     $query->fields('f', ['feature_id']);
     $query->condition('uniquename', $ssr_uniquename);
@@ -264,12 +262,13 @@ class SSRLoader extends TripalImporter {
 
     $ssr_feature_id = $result['feature_id'];
     $term = chado_get_cvterm(['id' => 'SO:associated_with']);
-
     $query = db_insert('chado.feature_relationship')
       ->fields([
         'subject_id' => $ssr_feature_id,
         'object_id' => $parent_feature_id,
         'type_id' => $term->cvterm_id,
+        'value' => NULL,
+        'rank' => 0
       ])->execute();
     //TODO: ERROR HANDLING HERE.
 
