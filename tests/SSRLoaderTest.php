@@ -90,7 +90,8 @@ SELECT * FROM {featureloc}
   private function loadFile() {
 
     $file = ['file_local' => __DIR__ . '/../example/example_ssr.txt'];
-    $run_args = [];
+    $analysis = factory('chado.analysis')->create(['name' => 'ssr_example_test']);
+    $run_args = ['analysis_id' => $analysis->analysis_id];
     $importer = new \SSRLoader();
     $importer->create($run_args, $file);
     $importer->run();
@@ -114,6 +115,19 @@ SELECT * FROM {featureloc}
     $result = $importer->find_parent_feature($feature);
     $this->assertFalse($result);
 
+  }
+
+  public function test_importer_adds_to_analysisfeature(){
+
+    $parent = $this->addParentFeature();
+
+    $this->loadFile();
+    $query = db_select('chado.analysis', 'a');
+    $query->join('chado.analysisfeature', 'af', 'a.analysis_id = af.analysis_id');
+    $query->fields('af', ['analysisfeature_id']);
+    $query->condition('a.name', 'ssr_example_test');
+    $result = $query->execute()->fetchAll();
+    $this->assertNotEmpty($result);
   }
 
 

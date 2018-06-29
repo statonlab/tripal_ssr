@@ -71,3 +71,21 @@ Factory::define('chado.feature', function (Faker\Generator $faker) {
         'type_id' => factory('chado.cvterm')->create()->cvterm_id,
     ];
 });
+
+
+/** @see  StatonLab\TripalTestSuite\Database\Factory::define() */
+Factory::define('chado.analysis', function (Faker\Generator $faker) {
+  return [
+    'name' => $faker->name,
+    'description' => $faker->name,
+    'program' => $faker->name,
+    'programversion' => $faker->name,
+    'algorithm' => $faker->name,
+    'sourcename' => $faker->name,
+    'sourceversion' => $faker->name,
+    'sourceuri' => $faker->name,
+    // 'timeexecuted' => $faker->time()// needs to match 2018-03-23 15:08:00.000000
+  ];
+});
+
+
