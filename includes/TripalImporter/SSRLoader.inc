@@ -77,9 +77,11 @@ class SSRLoader extends TripalImporter {
 <p>More information coming soon.</p>
 ',
     ];
+
+
     $form['regexp'] = [
       '#type' => 'textfield',
-      '#name' => 'Regular expression for parent',
+      '#title' => 'Regular expression for parent',
       '#description' => 'A regular expression that uniquely defines the parent.  Use this field with a 10 column file, the first column being an SSR name that also contains the parent.',
     ];
 
@@ -91,6 +93,17 @@ class SSRLoader extends TripalImporter {
    */
   public function formValidate($form, &$form_state) {
 
+    $regexp = trim($form_state['input']['regexp']);
+    $form_state['values']['regexp']  = $regexp;
+    // check the regular expression to make sure it is valid
+    set_error_handler(function() {}, E_WARNING);
+    $result = preg_match("/" . $form_state['values']['regexp'] . "/", null);
+    restore_error_handler();
+    if ($result === FALSE) {
+      form_set_error('regexp', 'Invalid regular expression.');
+    }
+
+    dpm($form_state);
   }
 
   /**
@@ -98,7 +111,10 @@ class SSRLoader extends TripalImporter {
    */
   public function run() {
 
+
     $arguments = $this->arguments['run_args'];
+    dpm($arguments);
+
     $analysis_id = $arguments['analysis_id'];
     $parent_regex = isset($arguments['regexp']) ? $arguments['regexp'] : NULL;
 
