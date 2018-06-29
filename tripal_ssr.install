@@ -6,9 +6,19 @@ function tripal_ssr_install() {
 
 /**
  * Inserts local cvterms.
- * //TODO: REPLACE terms that make sense to replace!
  */
 function tripal_ssr_install_local_terms() {
+
+
+  tripal_insert_cvterm([
+    'name' => 'associated_with',
+    'def' => '.',
+    'accession' => 'associated_with',
+    'cv_name' => 'sequence',
+    'db_name' => 'SO',
+  ]);
+
+
   tripal_insert_cvterm([
     'name' => 'tripal_ssr_motif',
     'def' => 'An SSR motif.',
@@ -99,6 +109,15 @@ function tripal_ssr_update_7201() {
     'def' => 'This feature has predicted or confirmed SSRs associated with it.',
     'cv_name' => 'feature_property',
     'db_name' => 'tripal',
+  ]);
+}
+function tripal_ssr_update_7202(){
+  tripal_insert_cvterm([
+    'name' => 'associated_with',
+    'def' => '.',
+    'accession' => 'associated_with',
+    'cv_name' => 'sequence',
+    'db_name' => 'SO',
   ]);
 }
 
