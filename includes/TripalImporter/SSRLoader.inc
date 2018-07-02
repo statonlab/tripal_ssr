@@ -113,7 +113,7 @@ class SSRLoader extends TripalImporter {
     if ($term_name) {
       $term = chado_get_cvterm([
         'name' => $term_name,
-        'cv' => ['name' => 'sequence'],
+        'cv_id' => ['name' => 'sequence'],
       ]);
       if (!$term) {
         form_set_error('p_type', 'Please enter a valid SO term.');
