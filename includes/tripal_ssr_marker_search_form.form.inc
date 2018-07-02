@@ -61,7 +61,7 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
     '#value' => t('Search'),
     '#attributes' => [
       'id' => 'tripal-ssr-search-button',
-      'style' => 'margin-left: 2px; margin-top: 2px'
+      'style' => 'margin-left: 4px; margin-top: 6px'
     ],
   ];
 
