@@ -250,7 +250,7 @@ class so__microsatellite extends ChadoField {
     $query->condition('ftwo.type_id', $ssr_type_id)
       ->condition('f.organism_id', $organism_id);
 
-    $result = $query->execute()->fetchAssoc();
+    $result = $query->execute()->fetchAllAssoc();
     return $result;
   }
 
