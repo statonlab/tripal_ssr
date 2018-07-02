@@ -41,10 +41,8 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
   ];
 
   $form['options'] = [
-    '#type' => 'fieldset',
-    '#attributes' => [
-      'class' => ['container-inline']
-    ]
+    '#prefix' => '<div class="container-inline">',
+    '#suffix' => '</div>'
   ];
 
   $form['options']['search_term'] = [
@@ -54,7 +52,6 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
       'placeholder' => t('marker name'),
       'id' => 'tripal-ssr-search-field',
     ],
-//    '#description' => t('Search for markers'),
     '#required' => TRUE,
     '#default_value' => isset($_GET['search_term']) ? $_GET['search_term'] : '',
   ];
@@ -65,6 +62,10 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
     '#attributes' => [
       'id' => 'tripal-ssr-search-button',
     ],
+  ];
+
+  $form['options']['help-text'] = [
+    '#markup'=> "<p>".t('Search for markers')."</p>"
   ];
 
   if (!empty($_GET['search_term']) || !empty($_GET['organism'])) {
