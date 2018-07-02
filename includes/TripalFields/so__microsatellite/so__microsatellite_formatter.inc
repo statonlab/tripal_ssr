@@ -94,7 +94,7 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
         return NULL;
       }
 
-      $message = 'There are <strong>' . $count . ' SSR markers</strong> associated with <strong> ' . count($features) . ' features</strong> with SSR annotations in this organism.';
+      $message = 'There are <strong>' . $count . ' SSR markers</strong> associated with <strong> ' . count($features) . ' features</strong> in this organism.';
 
       $organism = $entity->chado_record;
 
@@ -108,14 +108,10 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       }
 
 
-      $form = drupal_get_form('tripal_ssr_marker_search_form', TRUE, $organism->organism_id, [
-        'tripal_pane' => 'group_ssr_search',
-        //NOTE: this doesnt do what i think it does, changing it has no effect on the built URL?...
-        'organism' => $organism->organism_id,
-      ]);
+      $form = drupal_get_form('tripal_ssr_marker_search_form', $organism->organism_id);
 
       $content = $message;
-      $content .= '<p>You can search for markers below: the form will return the gene features they are associated with.</p>';
+      $content .= '<br><p>You can search for markers below: the form will return the gene features they are associated with.</p>';
       $content .= drupal_render($form);
       $element[] = [
         '#type' => 'markup',
