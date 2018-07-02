@@ -1,6 +1,7 @@
 <?php
 
 include drupal_get_path('module', 'tripal_ssr') . '/includes/tripal_ssr.fields.inc';
+require_once drupal_get_path('module', 'tripal_ssr') . '/includes/tripal_ssr_marker_search_form.form.inc';
 
 /**
  * Implements hook_node_view().
@@ -13,67 +14,67 @@ function tripal_ssr_node_view($node, $view_mode, $langcode = NULL) {
   switch ($node->type) {
     case 'chado_feature':
       if ($view_mode == 'full') {
-        $node->content['tripal_feature_ssr'] = array(
-          '#markup' => theme('tripal_feature_ssr', array('node' => $node)),
+        $node->content['tripal_feature_ssr'] = [
+          '#markup' => theme('tripal_feature_ssr', ['node' => $node]),
           '#tripal_toc_id' => 'predicted_ssr',
           '#tripal_toc_title' => 'Predicted SSR',
           '#weight' => -1,
-        );
-        $node->content['tripal_feature_properties'] = array(
-          '#markup' => theme('tripal_feature_properties_no_ssr', array('node' => $node)),
+        ];
+        $node->content['tripal_feature_properties'] = [
+          '#markup' => theme('tripal_feature_properties_no_ssr', ['node' => $node]),
           '#tripal_toc_id' => 'properties',
           '#tripal_toc_title' => 'Properties',
           '#weight' => 0,
-        );
+        ];
       }
-    break;
+      break;
 
     case 'chado_organism':
       if ($view_mode == 'full') {
 
         $sql = 'SELECT analysis_id FROM chado.feature WHERE organism_id = :organism_id';
 
-        $result = db_query($sql, array(':organism_id' => $node->organism->organism_id));
+        $result = db_query($sql, [':organism_id' => $node->organism->organism_id]);
 
-        if($result->rowCount() > 0) {
-          $node->content['tripal_ssr_link'] = array(
+        if ($result->rowCount() > 0) {
+          $node->content['tripal_ssr_link'] = [
             '#type' => 'link',
             '#href' => '',
             '#title' => '<a href="/ssr-features/' . $node->organism->genus . '/' . $node->organism->species . '">Predicted SSRs (transcriptomic)</a>',
             '#weight' => 10,
-          );
+          ];
         }
       }
-    break;
+      break;
 
     case 'chado_analysis_unigene':
       if ($view_mode == 'full') {
-        
+
         $sql = 'SELECT genus, species FROM chado.feature_ssr_mview WHERE analysis_id = :analysis_id';
 
-        $result = db_query($sql, array(':analysis_id' => $node->analysis->analysis_id));
+        $result = db_query($sql, [':analysis_id' => $node->analysis->analysis_id]);
         $result_obj = $result->fetchObject();
 
         if ($result->rowCount() > 0) {
-          $node->content['tripal_ssr_link'] = array(
+          $node->content['tripal_ssr_link'] = [
             '#type' => 'link',
             '#href' => '',
             '#title' => '<a href="/ssr-features/' . $result_obj->genus . '/' . $result_obj->species . '">Predicted SSRs (transcriptomic)</a>',
             '#weight' => 10,
-          );
+          ];
         }
       }
-    break;
+      break;
 
   }
 
   if ($view_mode == 'full') {
-    $node->content['tripal_organism_ssr'] = array(
-      '#markup' => theme('tripal_organism_ssr', array('node' => $node)),
+    $node->content['tripal_organism_ssr'] = [
+      '#markup' => theme('tripal_organism_ssr', ['node' => $node]),
       '#tripal_toc_id' => 'predicted_ssr_transcriptomic',
       '#tripal_toc_title' => 'Predicted SSRs (transcriptomic)',
       '#weight' => 0,
-    );
+    ];
   }
 }
 
@@ -84,51 +85,22 @@ function tripal_ssr_node_view($node, $view_mode, $langcode = NULL) {
  * @param $type
  * @param $theme
  * @param $path
+ *
  * @return array
  */
 function tripal_ssr_theme($existing, $type, $theme, $path) {
 
-  $items = array(
-    'tripal_feature_ssr' => array(
-      'variables' => array('node' => NULL),
+  $items = [
+    'tripal_feature_ssr' => [
+      'variables' => ['node' => NULL],
       'template' => 'tripal_feature_ssr',
       'path' => "$path/theme/templates",
-    ),
-    'tripal_feature_properties_no_ssr' => array(
-      'variables' => array('node' => NULL),
+    ],
+    'tripal_feature_properties_no_ssr' => [
+      'variables' => ['node' => NULL],
       'template' => 'tripal_feature_properties_no_ssr',
       'path' => "$path/theme/templates",
-    ), 
-  );
+    ],
+  ];
   return $items;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
