@@ -98,14 +98,14 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
 
       $organism = $entity->chado_record;
 
-     $analyses =  $this->tripal_ssr_get_associated_analyses($organism->organism_id);
+      $analyses = $this->tripal_ssr_get_associated_analyses($organism->organism_id);
 
-if ($analyses){
-  $message .= '<p>The complete list of SSR markers, their properties, and primers to amplify then can be found on the corresponding analysis page.</p>';
+      if ($analyses) {
+        $message .= '<p>The complete list of SSR markers, their properties, and primers to amplify then can be found on the corresponding analysis page.</p>';
 
-  $message .= $this->render_ssr_analysis_table($analyses);
+        $message .= $this->render_ssr_analysis_table($analyses);
 
-}
+      }
 
 
       $form = drupal_get_form('tripal_ssr_marker_search_form', TRUE, $organism->organism_id, [
@@ -149,12 +149,20 @@ if ($analyses){
       foreach ($items as $item) {
         $info = $item['value'];
         $row = [];
-        foreach ($info as $li => $value) {
-          $row[$li] = $value;
-        }
+        $name = $info['name'];
+        $uname = $info['unique_name'];
+        $motif = $info['tripal_ssr_motif'];
+        $repeats = $info['tripal_ssr_repeats'];
+        $forward = $info['tripal_ssr_forward_primer'];
+        $f_tm = $info['tripal_ssr_forward_tm'];
+        $reverse = $info['tripal_ssr_reverse_primer'];
+        $r_tm = $info['tripal_ssr_reverse_tm'];
+        $size = $info['tripal_ssr_product_size'];
+
+        $row = [$name, $uname, $motif, $repeats, $forward, $f_tm, $reverse, $r_tm, $size];
         $rows[] = $row;
-        $i++;
       }
+
       $element[0] = [
         '#theme' => 'table',
         '#header' => $header,
@@ -163,6 +171,7 @@ if ($analyses){
       return $element;
     }
   }
+
 
   /**
    * Provides a summary of the formatter settings.
@@ -207,14 +216,14 @@ if ($analyses){
     return $query->execute()->fetchAll();
   }
 
-  private function render_ssr_analysis_table($results){
+  private function render_ssr_analysis_table($results) {
     $header = ['Analysis Name'];
     $rows = [];
-    foreach ($results as $result ){
+    foreach ($results as $result) {
       $analysis_id = $result->analysis_id;
       $name = $result->name;
       $entity_id = chado_get_record_entity_by_table('analysis', $analysis_id);
-      $rows[] = [l($name, '/bio_data/'. $entity_id)];
+      $rows[] = [l($name, '/bio_data/' . $entity_id)];
     }
     return theme('table', [
       'header' => $header,
