@@ -86,7 +86,7 @@ class SSRLoader extends TripalImporter {
     $form['p_type'] = [
       '#type' => 'textfield',
       '#title' => t('Parent Type'),
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#description' => t('Please enter the Sequence Ontology (SO) term name that describes parent feature (e.g. gene, mRNA, polypeptide, etc...)'),
       '#autocomplete_path' => "admin/tripal/storage/chado/auto_name/cvterm/$cv_id",
     ];
