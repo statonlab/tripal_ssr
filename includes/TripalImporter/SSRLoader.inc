@@ -94,14 +94,14 @@ class SSRLoader extends TripalImporter {
   public function formValidate($form, &$form_state) {
 
     $regexp = trim($form_state['input']['regexp']);
-    $form_state['values']['regexp']  = $regexp;
+    $form_state['values']['regexp'] = $regexp;
     // check the regular expression to make sure it is valid
-//    set_error_handler(function() {}, E_WARNING);
-//    $result = preg_match("/" . $form_state['values']['regexp'] . "/", null);
-//    restore_error_handler();
-//    if ($result === FALSE) {
-//      form_set_error('regexp', 'Invalid regular expression.');
-//    }
+    //    set_error_handler(function() {}, E_WARNING);
+    //    $result = preg_match("/" . $form_state['values']['regexp'] . "/", null);
+    //    restore_error_handler();
+    //    if ($result === FALSE) {
+    //      form_set_error('regexp', 'Invalid regular expression.');
+    //    }
 
   }
 
@@ -232,7 +232,7 @@ class SSRLoader extends TripalImporter {
    */
   function get_ssr_feature($ssr_uniquename, $organism_id, $parent_feature_id) {
 
-   $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
+    $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
 
     $query = db_select('chado.feature', 'f');
     $query->fields('f', ['feature_id']);
@@ -261,15 +261,20 @@ class SSRLoader extends TripalImporter {
     }
 
     $ssr_feature_id = $result['feature_id'];
-    $term = chado_get_cvterm(['id' => '_global:associated_with']);
-    
+
+    $term = chado_get_cvterm([
+      'name' => "associated_with",
+      'cv_id' => ['name' => 'sequence'],
+    ]);
+  //  $term = chado_get_cvterm(['id' => '_global:associated_with']);
+
     $query = db_insert('chado.feature_relationship')
       ->fields([
         'subject_id' => $ssr_feature_id,
         'object_id' => $parent_feature_id,
         'type_id' => $term->cvterm_id,
         'value' => NULL,
-        'rank' => 0
+        'rank' => 0,
       ])->execute();
     //TODO: ERROR HANDLING HERE.
 

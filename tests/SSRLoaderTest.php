@@ -165,11 +165,26 @@ SELECT * FROM {featureloc}
 
   }
 
-  private function AddParentFeature() {
+  /**
+   * @ticket 46
+   * Features can share names across types ie mRNA and protein.
+   */
+  public function testHandleParentType(){
+    $parent = $this->addParentFeature();
+
+  }
+
+  private function AddParentFeature($type_id = NULL) {
+
+    if (!$type_id ){
+     $type =  chado_get_cvterm(['id' => 'SO:0000234']);
+     $type_id = $type->cvterm_id;
+    }
     $feature_name = 'WaffleFeature';
     $feature = factory('chado.feature')->create([
       'name' => $feature_name,
       'uniquename' => $feature_name,
+      'type_id' => $type_id
     ]);
     return $feature;
   }
