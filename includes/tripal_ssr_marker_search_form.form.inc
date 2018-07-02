@@ -54,7 +54,7 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
       'placeholder' => t('marker name'),
       'id' => 'tripal-ssr-search-field',
     ],
-    '#description' => '<br><small>Search for markers</small><br>',
+    '#description' => t('Search for markers'),
     '#required' => TRUE,
     '#default_value' => isset($_GET['search_term']) ? $_GET['search_term'] : '',
   ];
