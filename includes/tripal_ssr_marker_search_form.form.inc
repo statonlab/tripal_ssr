@@ -41,8 +41,10 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
   ];
 
   $form['options'] = [
-    '#prefix' => '<div class="container-inline">',
-    '#suffix' => '</div>',
+    '#type' => 'fieldset',
+    '#attributes' => [
+      'class' => ['container-inline']
+    ]
   ];
 
   $form['options']['search_term'] = [
