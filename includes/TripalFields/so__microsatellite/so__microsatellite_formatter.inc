@@ -160,6 +160,7 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
         $size = $info['tripal_ssr_product_size'];
 
         $row = [$name, $uname, $motif, $repeats, $forward, $f_tm, $reverse, $r_tm, $size];
+        $rows[] = $row;
       }
 
       $element[0] = [
