@@ -245,7 +245,7 @@ class so__microsatellite extends ChadoField {
 
     $query = db_select('chado.feature', 'f')
       ->fields('f', ['feature_id']);
-    $query->join('chado.feature.relationship', 'fr', 'f.feature_id = fr.object_id');
+    $query->join('chado.feature_relationship', 'fr', 'f.feature_id = fr.object_id');
     $query->join('chado.feature', 'ftwo', 'ftwo.feature_id = fr.subject_id');
     $query->condition('ftwo.type_id', $ssr_type_id)
       ->condition('f.organism_id', $organism_id);
