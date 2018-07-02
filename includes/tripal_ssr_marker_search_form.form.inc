@@ -61,11 +61,12 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
     '#value' => t('Search'),
     '#attributes' => [
       'id' => 'tripal-ssr-search-button',
+      'style' => 'margin-left: 2px; margin-top: 2px'
     ],
   ];
 
   $form['options']['help-text'] = [
-    '#markup' => '<p class="text-muted" style="margin-top: -15px">' . t('Search for markers') . '</p>',
+    '#markup' => '<p class="text-muted" style="margin-top: -12px">' . t('Search for markers') . '</p>',
   ];
 
   if (!empty($_GET['search_term']) || !empty($_GET['organism'])) {
