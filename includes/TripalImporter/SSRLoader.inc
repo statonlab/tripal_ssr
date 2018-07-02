@@ -78,6 +78,18 @@ class SSRLoader extends TripalImporter {
 ',
     ];
 
+    // get the sequence ontology CV ID
+    $values = ['name' => 'sequence'];
+    $cv = chado_select_record('cv', ['cv_id'], $values);
+    $cv_id = $cv[0]->cv_id;
+
+    $form['p_type'] = [
+      '#type' => 'textfield',
+      '#title' => t('Parent Type'),
+      '#required' => TRUE,
+      '#description' => t('Please enter the Sequence Ontology (SO) term name that describes parent feature (e.g. gene, mRNA, polypeptide, etc...)'),
+      '#autocomplete_path' => "admin/tripal/storage/chado/auto_name/cvterm/$cv_id",
+    ];
 
     $form['regexp'] = [
       '#type' => 'textfield',
@@ -95,14 +107,19 @@ class SSRLoader extends TripalImporter {
 
     $regexp = trim($form_state['input']['regexp']);
     $form_state['values']['regexp'] = $regexp;
-    // check the regular expression to make sure it is valid
-    //    set_error_handler(function() {}, E_WARNING);
-    //    $result = preg_match("/" . $form_state['values']['regexp'] . "/", null);
-    //    restore_error_handler();
-    //    if ($result === FALSE) {
-    //      form_set_error('regexp', 'Invalid regular expression.');
-    //    }
 
+    $term_name = trim($form_state['input']['p_type']);
+
+    if ($term_name) {
+      $term = chado_get_cvterm([
+        'name' => $term_name,
+        'cv' => ['name' => 'sequence'],
+      ]);
+      if (!$term) {
+        form_set_error('p_type', 'Please enter a valid SO term.');
+      }
+      $form_state['values']['p_type_id'] = $term->cvterm_id;
+    }
   }
 
   /**
@@ -110,13 +127,10 @@ class SSRLoader extends TripalImporter {
    */
   public function run() {
 
-
     $arguments = $this->arguments['run_args'];
     $analysis_id = $arguments['analysis_id'];
     $parent_regex = isset($arguments['regexp']) ? $arguments['regexp'] : NULL;
-    $parent_type_id = isset($arguments['p_type']) ? $arguments['p_type'] : NULL;
-
-
+    $parent_type_id = isset($arguments['p_type_id']) ? $arguments['p_type_id'] : NULL;
     $file_path = $this->arguments['files'][0]['file_path'];
     $this->tripal_ssr_import_ssr($file_path, $analysis_id, $parent_regex, $parent_type_id);
 
@@ -151,12 +165,16 @@ class SSRLoader extends TripalImporter {
         preg_match($regexp, $features, $matches);
 
         if (!$matches[0]) {
-          print "Error: Could not parse parent feature given regular expression " . $regexp . " for entry " . $features . "!\n";
-          return;
+          $this->logMessage("Error: Could not parse parent feature given regular expression :REGEXP for entry :features",
+            [
+              '!REGEXP' => $regexp,
+              '!features' => $features,
+            ], TRIPAL_ERROR);
+          return NULL;
+
         }
 
         $parent_feature_uniquename = $matches[0];
-
         $ssr_uniquename = $split[0];
         $motif = $split[1];
         $num_repeats = $split[2];
@@ -182,10 +200,14 @@ class SSRLoader extends TripalImporter {
         $product_size = $split[10];
       }
 
-      $parent_feature = $this->find_parent_feature($parent_feature_uniquename);
+      $parent_feature = $this->find_parent_feature($parent_feature_uniquename, $parent_type_id);
       if (!$parent_feature) {
-        print "Error: Could not uniquely identify parent feature.";
-        return;
+        $this->logMessage("Multiple features exist with the name '!name' of type '!type' for the organism.  Exiting.",
+          [
+            '!name' => $parent_feature_uniquename,
+            '!type' => $parent_type_id,
+          ], TRIPAL_ERROR);
+        return FALSE;
       }
 
       $parent_feature_id = $parent_feature->feature_id;
@@ -206,20 +228,29 @@ class SSRLoader extends TripalImporter {
   function parse_line($line, $regexp) {
     $split = explode("\t", $line);
 
+    //skip headers
+    if ($split[0] == 'Feature_ID' || $split[0] == 'ID') {
+      return FALSE;
+    }
+
+    if (!$split) {
+      return FALSE;
+    }
     if ($regexp && count($split) != 10) {
-      print "Error: Input file should be an 10 column tab delimited file if supplying a regular expression.";
-      return;
+
+      $this->logMessage("Warning: Input file should be an 10 column tab delimited file if supplying a regular expression.\n  :line", [
+        '!line' => $line,
+      ], TRIPAL_WARNING);
+      return FALSE;
     }
 
     if (!$regexp && count($split) != 11) {
-      print "Error: Input file should be an 11 column tab delimited file";
-      return;
+      $this->logMessage("Warning: Input file should be an 11 column tab delimited file.\n  :line", [
+        '!line' => $line,
+      ], TRIPAL_WARNING);
+      return FALSE;
     }
 
-    //skip headers
-    if ($split[0] == 'Feature_ID' || $split[0] == 'ID') {
-      return NULL;
-    }
     return $split;
   }
 
@@ -300,7 +331,6 @@ class SSRLoader extends TripalImporter {
     $result = $query->execute()->fetchAll();
 
     if (count($result) > 1) {
-
       $this->logMessage("Failed to uniquely identify feature '!name'", [
         '!name' => $unique_name,
       ], TRIPAL_ERROR);

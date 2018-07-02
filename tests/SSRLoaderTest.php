@@ -146,14 +146,27 @@ SELECT * FROM {featureloc}
 
   /**
    * @ticket 46
+   * @group failing
    * Features can share names across types ie mRNA and protein.
    */
   public function testHandleParentType() {
+
+    /**
+     * sanity check: is our feature absent?
+     */
+    $query = db_select('chado.feature', 'f')
+      ->fields('f', ['name', 'type_id'])
+      ->condition('name', '3935838_ssr85');
+    $result = $query->execute()->FetchAll();
+    $this->assertEmpty($result);
+
+    /**
+     * Load improperly
+     */
     $mrna_term = chado_get_cvterm(['id' => 'SO:0000234']);
     $parent = $this->addParentFeature();
     $polypeptide_term = chado_get_cvterm(['id' => 'SO:0000104']);
     $parent_two = $this->addParentFeature($polypeptide_term->cvterm_id);
-
     $this->loadFile();
     $query = db_select('chado.feature', 'f')
       ->fields('f', ['name', 'type_id'])
@@ -167,7 +180,7 @@ SELECT * FROM {featureloc}
       ->fields('f', ['name', 'type_id'])
       ->condition('name', '3935838_ssr85');
     $result = $query->execute()->FetchAll();
-    $this->assertNotEmpty($result);
+    $this->assertNotEmpty($result, 'specifying the type_id did not uniquely identify parent loading the SSR.');
 
   }
 
@@ -204,7 +217,7 @@ SELECT * FROM {featureloc}
       $run_args['regexp'] = $regexp;
     }
     if ($parent_type) {
-      $run_args['p_type'] = $parent_type;
+      $run_args['p_type_id'] = $parent_type;
     }
 
     $importer = new \SSRLoader();
