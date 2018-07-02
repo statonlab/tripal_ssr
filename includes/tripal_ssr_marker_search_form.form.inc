@@ -34,9 +34,15 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
     '#type' => 'hidden',
     '#value' => $organism,
   ];
+
   $form['tripal_pane'] = [
     '#type' => 'hidden',
     '#value' => 'group_ssr_search',
+  ];
+
+  $form['options'] = [
+    '#prefix' => '<div class="container-inline">',
+    '#suffix' => '</div>',
   ];
 
   $form['options']['search_term'] = [
