@@ -239,8 +239,15 @@ class so__microsatellite extends ChadoField {
     if (!$organism_id) {
       return FALSE;
     }
+
+    $ssr_cvterm = chado_get_cvterm(['id' => 'SO:0000289']);
+    $ssr_type_id = $ssr_cvterm->cvterm_id;
+
     $query = db_select('chado.feature', 'f')
-      ->fields('f', ['feature_id'])
+      ->fields('f', ['feature_id']);
+    $query->join('chado.feature.relationship', 'fr', 'f.feature_id = fr.object_id');
+    $query->join('chado.feature', 'ftwo', 'ftwo.feature_id = fr.subject_id');
+    $query->condition('ftwo.type_id', $ssr_type_id)
       ->condition('f.organism_id', $organism_id);
 
     $result = $query->execute()->fetchAssoc();
@@ -265,7 +272,7 @@ class so__microsatellite extends ChadoField {
     $sql = 'SELECT COUNT(feature_id) as features_count FROM {feature} WHERE organism_id = :organism_id AND type_id = :type_id';
     $result = chado_query($sql, [
       ':organism_id' => $organism_id,
-      ':type_id' => $ssr_type_id
+      ':type_id' => $ssr_type_id,
     ])->fetchObject()->features_count;
 
     return $result;
