@@ -87,27 +87,6 @@ SELECT * FROM {featureloc}
     $this->assertNotFalse($result);
   }
 
-  /**
-   *
-   * @return \SSRLoader
-   * @throws \Exception
-   */
-  private function loadFile($file_name = 'example_ssr.txt', $regexp = NULL) {
-
-    $file = ['file_local' => __DIR__ . '/../example/' . $file_name];
-
-    $analysis = factory('chado.analysis')->create(['name' => 'ssr_example_test']);
-
-
-    $run_args = ['analysis_id' => $analysis->analysis_id];
-    if ($regexp) {
-      $run_args['regexp'] = $regexp;
-    }
-    $importer = new \SSRLoader();
-    $importer->create($run_args, $file);
-    $importer->run();
-    return $importer;
-  }
 
   public function testFind_parent_feature_FindsFeature() {
     $importer = new \SSRLoader();
@@ -169,24 +148,69 @@ SELECT * FROM {featureloc}
    * @ticket 46
    * Features can share names across types ie mRNA and protein.
    */
-  public function testHandleParentType(){
+  public function testHandleParentType() {
+    $mrna_term = chado_get_cvterm(['id' => 'SO:0000234']);
     $parent = $this->addParentFeature();
+    $polypeptide_term = chado_get_cvterm(['id' => 'SO:0000104']);
+    $parent_two = $this->addParentFeature($polypeptide_term->cvterm_id);
+
+    $this->loadFile();
+    $query = db_select('chado.feature', 'f')
+      ->fields('f', ['name', 'type_id'])
+      ->condition('name', '3935838_ssr85');//we shouldn't load in feature if we can't identify which is the parent
+    $result = $query->execute()->FetchAll();
+    $this->assertEmpty($result);
+
+    //this time, specify the cvterm
+    $this->loadFile('example_ssr.txt', NULL, $mrna_term->cvterm_id);
+    $query = db_select('chado.feature', 'f')
+      ->fields('f', ['name', 'type_id'])
+      ->condition('name', '3935838_ssr85');
+    $result = $query->execute()->FetchAll();
+    $this->assertNotEmpty($result);
 
   }
 
   private function AddParentFeature($type_id = NULL) {
 
-    if (!$type_id ){
-     $type =  chado_get_cvterm(['id' => 'SO:0000234']);
-     $type_id = $type->cvterm_id;
+    if (!$type_id) {
+      $type = chado_get_cvterm(['id' => 'SO:0000234']);
+      $type_id = $type->cvterm_id;
     }
     $feature_name = 'WaffleFeature';
     $feature = factory('chado.feature')->create([
       'name' => $feature_name,
       'uniquename' => $feature_name,
-      'type_id' => $type_id
+      'type_id' => $type_id,
     ]);
     return $feature;
+  }
+
+
+  /**
+   *
+   * @return \SSRLoader
+   * @throws \Exception
+   */
+  private function loadFile($file_name = 'example_ssr.txt', $regexp = NULL, $parent_type = NULL) {
+
+    $file = ['file_local' => __DIR__ . '/../example/' . $file_name];
+
+    $analysis = factory('chado.analysis')->create(['name' => 'ssr_example_test']);
+
+
+    $run_args = ['analysis_id' => $analysis->analysis_id];
+    if ($regexp) {
+      $run_args['regexp'] = $regexp;
+    }
+    if ($parent_type) {
+      $run_args['p_type'] = $parent_type;
+    }
+
+    $importer = new \SSRLoader();
+    $importer->create($run_args, $file);
+    $importer->run();
+    return $importer;
   }
 
 }

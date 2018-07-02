@@ -112,13 +112,13 @@ class SSRLoader extends TripalImporter {
 
 
     $arguments = $this->arguments['run_args'];
-
-
     $analysis_id = $arguments['analysis_id'];
     $parent_regex = isset($arguments['regexp']) ? $arguments['regexp'] : NULL;
+    $parent_type_id = isset($arguments['p_type']) ? $arguments['p_type'] : NULL;
+
 
     $file_path = $this->arguments['files'][0]['file_path'];
-    $this->tripal_ssr_import_ssr($file_path, $analysis_id, $parent_regex);
+    $this->tripal_ssr_import_ssr($file_path, $analysis_id, $parent_regex, $parent_type_id);
 
   }
 
@@ -130,7 +130,7 @@ class SSRLoader extends TripalImporter {
    * @param $regexp
    */
 
-  private function tripal_ssr_import_ssr($file_path, $analysis_id, $regexp = NULL) {
+  private function tripal_ssr_import_ssr($file_path, $analysis_id, $regexp = NULL, $parent_type_id = NULL) {
     //Read in the file, split the columns
     $file = new SplFileObject($file_path);
 
@@ -266,7 +266,7 @@ class SSRLoader extends TripalImporter {
       'name' => "associated_with",
       'cv_id' => ['name' => 'sequence'],
     ]);
-  //  $term = chado_get_cvterm(['id' => '_global:associated_with']);
+    //  $term = chado_get_cvterm(['id' => '_global:associated_with']);
 
     $query = db_insert('chado.feature_relationship')
       ->fields([
