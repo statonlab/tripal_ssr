@@ -232,7 +232,10 @@ class SSRLoader extends TripalImporter {
    */
   function get_ssr_feature($ssr_uniquename, $organism_id, $parent_feature_id) {
 
-    $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
+   // $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
+    $ssrTerm = chado_get_cvterm(['id' => '_global:0000289']);
+//TODO:  see issue 37 https://github.com/statonlab/tripal_ssr/issues/37
+
 
     $query = db_select('chado.feature', 'f');
     $query->fields('f', ['feature_id']);
