@@ -74,9 +74,27 @@ class SSRLoader extends TripalImporter {
     $form['instructions'] = [
       '#markup' => '
 <h2>An SSR importer.</h2>
-<p>
-More information coming soon.</p>
+<p>More information coming soon.</p>
 ',
+    ];
+
+    // get the sequence ontology CV ID
+    $values = ['name' => 'sequence'];
+    $cv = chado_select_record('cv', ['cv_id'], $values);
+    $cv_id = $cv[0]->cv_id;
+
+    $form['p_type'] = [
+      '#type' => 'textfield',
+      '#title' => t('Parent Type'),
+      '#required' => FALSE,
+      '#description' => t('Please enter the Sequence Ontology (SO) term name that describes parent feature (e.g. gene, mRNA, polypeptide, etc...)'),
+      '#autocomplete_path' => "admin/tripal/storage/chado/auto_name/cvterm/$cv_id",
+    ];
+
+    $form['regexp'] = [
+      '#type' => 'textfield',
+      '#title' => 'Regular expression for parent',
+      '#description' => 'A regular expression that uniquely defines the parent.  Use this field with a 10 column file, the first column being an SSR name that also contains the parent.',
     ];
 
     return $form;
@@ -87,6 +105,21 @@ More information coming soon.</p>
    */
   public function formValidate($form, &$form_state) {
 
+    $regexp = trim($form_state['input']['regexp']);
+    $form_state['values']['regexp'] = $regexp;
+
+    $term_name = trim($form_state['input']['p_type']);
+
+    if ($term_name) {
+      $term = chado_get_cvterm([
+        'name' => $term_name,
+        'cv_id' => ['name' => 'sequence'],
+      ]);
+      if (!$term) {
+        form_set_error('p_type', 'Please enter a valid SO term.');
+      }
+      $form_state['values']['p_type_id'] = $term->cvterm_id;
+    }
   }
 
   /**
@@ -95,53 +128,86 @@ More information coming soon.</p>
   public function run() {
 
     $arguments = $this->arguments['run_args'];
-    $file_path = $this->arguments['files'][0]['file_path'];
     $analysis_id = $arguments['analysis_id'];
-    $this->tripal_ssr_import_ssr($file_path, $analysis_id);
+    $parent_regex = isset($arguments['regexp']) ? $arguments['regexp'] : NULL;
+    $parent_type_id = isset($arguments['p_type_id']) ? $arguments['p_type_id'] : NULL;
+    $file_path = $this->arguments['files'][0]['file_path'];
+    $this->tripal_ssr_import_ssr($file_path, $analysis_id, $parent_regex, $parent_type_id);
 
   }
 
-  private function tripal_ssr_import_ssr($file_path, $analysis_id) {
+  //Read in the file, split the columns
+
+  /**
+   * @param $file_path
+   * @param $analysis_id
+   * @param $regexp
+   */
+
+  private function tripal_ssr_import_ssr($file_path, $analysis_id, $regexp = NULL, $parent_type_id = NULL) {
     //Read in the file, split the columns
-
-
     $file = new SplFileObject($file_path);
 
     // Loop until we reach the end of the file.
-
     $parent_id = NULL;
 
     while (!$file->eof()) {
       // Echo one line from the file.
       $line = $file->fgets();
-      $split = explode("\t", $line);
-
-      if (count($split) != 11) {
-        print "Error: Input file should be an 11 column tab delimited file";
-        return;
-      }
-
-      $parent_feature_uniquename = $split[0];
-      $ssr_uniquename = $split[1];
-      $motif = $split[2];
-      $num_repeats = $split[3];
-      $start_pos = $split[4]; //start position of SSR relative to parent
-      $end_pos = $split[5];
-      $f_primer = $split[6];//forward primer
-      $r_primer = $split[7];
-      $f_primer_tm = $split[8];
-      $r_primer_tm = $split[9];
-      $product_size = $split[10];
-
-      //skip headers
-      if ($parent_feature_uniquename == 'Feature_ID' || strtolower($motif) === 'motif') {
+      $split = $this->parse_line($line, $regexp);
+      if (!$split) {
         continue;
       }
 
-      $parent_feature = $this->find_parent_feature($parent_feature_uniquename);
+      if ($regexp) {
+        $features = $split[0];
+
+        preg_match($regexp, $features, $matches);
+
+        if (!$matches[0]) {
+          $this->logMessage("Error: Could not parse parent feature given regular expression :REGEXP for entry :features",
+            [
+              '!REGEXP' => $regexp,
+              '!features' => $features,
+            ], TRIPAL_ERROR);
+          return NULL;
+
+        }
+
+        $parent_feature_uniquename = $matches[0];
+        $ssr_uniquename = $split[0];
+        $motif = $split[1];
+        $num_repeats = $split[2];
+        $start_pos = $split[3]; //start position of SSR relative to parent
+        $end_pos = $split[4];
+        $f_primer = $split[5];//forward primer
+        $r_primer = $split[6];
+        $f_primer_tm = $split[7];
+        $r_primer_tm = $split[8];
+        $product_size = $split[9];
+      }
+      else {
+        $parent_feature_uniquename = $split[0];
+        $ssr_uniquename = $split[1];
+        $motif = $split[2];
+        $num_repeats = $split[3];
+        $start_pos = $split[4]; //start position of SSR relative to parent
+        $end_pos = $split[5];
+        $f_primer = $split[6];//forward primer
+        $r_primer = $split[7];
+        $f_primer_tm = $split[8];
+        $r_primer_tm = $split[9];
+        $product_size = $split[10];
+      }
+
+      $parent_feature = $this->find_parent_feature($parent_feature_uniquename, $parent_type_id);
       if (!$parent_feature) {
-        print "Error: Could not uniquely identify parent feature.";
-        return;
+        $this->logMessage("Multiple features exist with the name '!name' of type '!type' for the organism.  Exiting.",
+          [
+            '!name' => $parent_feature_uniquename,
+            '!type' => $parent_type_id,
+          ], TRIPAL_ERROR);
+        return FALSE;
       }
 
       $parent_feature_id = $parent_feature->feature_id;
@@ -153,9 +219,39 @@ More information coming soon.</p>
       //Add props to ssr_feature
       $this->add_ssr_props($ssr_feature, $motif, $num_repeats, $f_primer, $r_primer, $f_primer_tm, $r_primer_tm, $product_size);
 
+      $this->add_parent_props($parent_feature_id, $ssr_uniquename);
       //Add location information
       $this->insert_featureloc($ssr_feature, $parent_feature_id, $start_pos, $end_pos);
     }
+  }
+
+  function parse_line($line, $regexp) {
+    $split = explode("\t", $line);
+
+    //skip headers
+    if ($split[0] == 'Feature_ID' || $split[0] == 'ID') {
+      return FALSE;
+    }
+
+    if (!$split) {
+      return FALSE;
+    }
+    if ($regexp && count($split) != 10) {
+
+      $this->logMessage("Warning: Input file should be an 10 column tab delimited file if supplying a regular expression.\n  :line", [
+        '!line' => $line,
+      ], TRIPAL_WARNING);
+      return FALSE;
+    }
+
+    if (!$regexp && count($split) != 11) {
+      $this->logMessage("Warning: Input file should be an 11 column tab delimited file.\n  :line", [
+        '!line' => $line,
+      ], TRIPAL_WARNING);
+      return FALSE;
+    }
+
+    return $split;
   }
 
   /**
@@ -178,8 +274,10 @@ More information coming soon.</p>
     if (!$result) {
       // Doesnt exist so insert
       $values = [
+        'dbxref_id' => NULL,
         'organism_id' => $organism_id,
         'name' => $ssr_uniquename,
+        'residues' => NULL,
         'uniquename' => $ssr_uniquename,
         'type_id' => $ssrTerm->cvterm_id,
       ];
@@ -194,13 +292,20 @@ More information coming soon.</p>
     }
 
     $ssr_feature_id = $result['feature_id'];
-    $term = chado_get_cvterm(['id' => 'SO:associated_with']);
+
+    $term = chado_get_cvterm([
+      'name' => "associated_with",
+      'cv_id' => ['name' => 'sequence'],
+    ]);
+    //  $term = chado_get_cvterm(['id' => '_global:associated_with']);
 
     $query = db_insert('chado.feature_relationship')
       ->fields([
         'subject_id' => $ssr_feature_id,
         'object_id' => $parent_feature_id,
         'type_id' => $term->cvterm_id,
+        'value' => NULL,
+        'rank' => 0,
       ])->execute();
     //TODO: ERROR HANDLING HERE.
 
@@ -226,7 +331,6 @@ More information coming soon.</p>
     $result = $query->execute()->fetchAll();
 
     if (count($result) > 1) {
-
       $this->logMessage("Failed to uniquely identify feature '!name'", [
         '!name' => $unique_name,
       ], TRIPAL_ERROR);
@@ -358,5 +462,42 @@ More information coming soon.</p>
     $results = chado_query($sql, $args);
 
     return $results;
+  }
+
+  /**
+   * retrieves the analysisfeature record or, adds one.
+   *
+   * @param $ssr_feature_id
+   * @param $analysis_id
+   */
+  private function associate_ssr_analysis($ssr_feature_id, $analysis_id) {
+
+    $query = db_select('chado.analysisfeature', 'af')
+      ->fields('af', ['analysisfeature_id'])
+      ->condition('analysis_id', $analysis_id)
+      ->condition('feature_id', $ssr_feature_id);
+    $result = $query->execute()->fetchField();
+
+    if ($result) {
+      return $result;
+    }
+    return db_insert('chado.analysisfeature')
+      ->fields(['feature_id' => $ssr_feature_id, 'analysis_id' => $analysis_id])
+      ->execute();
+  }
+
+  private function add_parent_props($parent_id, $ssr_uniquename) {
+
+    $record = ['id' => $parent_id, 'table' => 'feature'];
+    $options = ['update_if_present' => TRUE];
+
+    $property = [
+      'type_name' => 'tripal_associated_ssr',
+      'cv_name' => 'feature_property',
+      'value' => $ssr_uniquename,
+    ];
+    if (!chado_insert_property($record, $property, $options)) {
+      tripal_report_error('Tripal SSR', TRIPAL_ERROR, "Could not add property Associated SSR to parent feature");
+    }
   }
 }
