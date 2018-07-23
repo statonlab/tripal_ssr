@@ -30,7 +30,7 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
   //  }
   $form['#attributes']['id'] = 'SSR-search-form';
 
-  $form['organism'] = [
+  $form['ssr_organism_id'] = [
     '#type' => 'hidden',
     '#value' => $organism,
   ];
@@ -45,7 +45,7 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
     '#suffix' => '</div>',
   ];
 
-  $form['options']['search_term'] = [
+  $form['options']['ssr_search_term'] = [
     '#type' => 'textfield',
     '#size' => '50',
     '#attributes' => [
@@ -53,10 +53,10 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
       'id' => 'tripal-ssr-search-field',
     ],
     '#required' => TRUE,
-    '#default_value' => isset($_GET['search_term']) ? $_GET['search_term'] : '',
+    '#default_value' => isset($_GET['ssr_search_term']) ? $_GET['ssr_search_term'] : '',
   ];
 
-  $form['options']['search_button'] = [
+  $form['options']['ssr_search_button'] = [
     '#type' => 'submit',
     '#value' => t('Search'),
     '#attributes' => [
@@ -69,7 +69,7 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
     '#markup' => '<p class="text-muted" style="margin-top: -12px">' . t('Search for markers') . '</p>',
   ];
 
-  if (!empty($_GET['search_term']) || !empty($_GET['organism'])) {
+  if (!empty($_GET['ssr_search_term']) || !empty($_GET['ssr_organism_id'])) {
     $form['results'] = [
       '#type' => 'markup',
       '#markup' => tripal_get_ssr_results(),
@@ -84,7 +84,7 @@ function tripal_ssr_marker_search_form($form, &$form_state, $organism = NULL) {
  * @return string
  */
 function tripal_get_ssr_results() {
-  $term = $_GET['search_term'];
+  $term = $_GET['ssr_search_term'];
   $per_page = 10;
 
   $results = tripal_ssr_search_by_name($term, $per_page);
@@ -132,7 +132,7 @@ function tripal_ssr_search_by_name($search_term, $per_page = 10) {
  * @return \SelectQuery
  */
 function tripal_ssr_search_query($search_term, $page = NULL, $per_page = 10) {
-  $organism = $_GET['organism'];
+  $organism = $_GET['ssr_organism_id'];
   $ssrTerm = chado_get_cvterm(['id' => 'SO:0000289']);
 
   $query = db_select('chado.feature', 'f');
