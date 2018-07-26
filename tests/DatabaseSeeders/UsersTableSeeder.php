@@ -22,7 +22,7 @@ class UsersTableSeeder extends Seeder
             ],
         ];
 
-        // The first parameter is sent blank so a new user is created.
+      // The first parameter is sent blank so a new user is created.
         user_save(new \stdClass(), $new_user);
     }
 }

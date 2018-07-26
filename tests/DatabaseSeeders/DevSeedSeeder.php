@@ -63,7 +63,6 @@ protected  $prot_regexp = NULL;
     ]);
 
     $this->sequence_analysis = $sequence_analysis;
-    var_dump($sequence_analysis);
 
     $this->blastdb = factory('chado.db')->create()->db_id;
   }
@@ -72,19 +71,6 @@ protected  $prot_regexp = NULL;
    * Uncomment loaders you would like to run.
    */
   public function up() {
-
-    $sequence_analysis = factory('chado.analysis')->create([
-      'common_name' => $this->organism_name,
-      'genus' => 'Fraxinus',
-      'species' => 'excelsior',
-      'abbreviation' => 'F. excelsor',
-      'comment' => 'The Tripal Dev Seed miniature dataset.',
-    ]);
-
-    $this->sequence_analysis = $sequence_analysis;
-    var_dump($sequence_analysis);
-
-    
 
     $run_args = [
       'analysis_id' => $this->sequence_analysis->analysis_id,
@@ -107,6 +93,8 @@ protected  $prot_regexp = NULL;
       'alt_id_attr' => NULL,
 
     ];
+
+    var_dump($run_args);
 
     //$this->load_GFF($run_args, $gff_file);
 
