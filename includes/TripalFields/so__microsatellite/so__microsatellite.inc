@@ -140,6 +140,7 @@ class so__microsatellite extends ChadoField {
       $record_id = $entity->chado_record->feature_id;
       $ssrs = $this->get_related_SSRs($record_id);
       if (!$ssrs) {
+        unset ($entity->{$field});
         return;
       }
 
