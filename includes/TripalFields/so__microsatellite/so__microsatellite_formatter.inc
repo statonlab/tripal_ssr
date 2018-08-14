@@ -81,6 +81,9 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
    */
   public function view(&$element, $entity_type, $entity, $langcode, $items, $display) {
 
+    if (empty($items)) {
+      return;
+    }
     //deal with organism case
     if ($entity->chado_table == 'organism') {
       $count = $entity->so__microsatellite['und'][0]['count'];
@@ -155,7 +158,17 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
         $r_tm = $info['tripal_ssr_reverse_tm'];
         $size = $info['tripal_ssr_product_size'];
 
-        $row = [$name, $uname, $motif, $repeats, $forward, $f_tm, $reverse, $r_tm, $size];
+        $row = [
+          $name,
+          $uname,
+          $motif,
+          $repeats,
+          $forward,
+          $f_tm,
+          $reverse,
+          $r_tm,
+          $size,
+        ];
         $rows[] = $row;
       }
 
