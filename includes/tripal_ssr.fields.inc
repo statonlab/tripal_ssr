@@ -110,6 +110,9 @@ function tripal_ssr_bundle_instances_info($entity_type, $bundle) {
         'chado_table' => $field_table,
         'chado_column' => 'feature_id',
         'base_table' => $field_table,
+        'term_vocabulary' => 'SO',
+        'term_name' => 'so__microsatellite',
+        'term_accession' => '0000289',
       ],
       'widget' => [
         'type' => 'so__microsatellite_widget',
