@@ -7,7 +7,8 @@
  * Display:
  * Configuration:
  */
-class so__microsatellite_formatter extends ChadoFieldFormatter {
+class so__microsatellite_formatter extends ChadoFieldFormatter
+{
 
   // The default label for this field.
   public static $default_label = 'so__microsatellite';
@@ -52,7 +53,8 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
    * @return
    *   A Drupal Form array containing the settings form for this field.
    */
-  public function settingsForm($view_mode, $form, &$form_state) {
+  public function settingsForm($view_mode, $form, &$form_state)
+  {
   }
 
   /**
@@ -79,7 +81,8 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
    *    An element array compatible with that returned by the
    *    hook_field_formatter_view() function.
    */
-  public function view(&$element, $entity_type, $entity, $langcode, $items, $display) {
+  public function view(&$element, $entity_type, $entity, $langcode, $items, $display)
+  {
 
     if (empty($items)) {
       return;
@@ -91,10 +94,10 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
       $features = $items[0]['records'];
 
 
-      $message = NULL;
+      $message = null;
 
       if ($count === 0) {
-        return NULL;
+        return null;
       }
 
       $message = 'There are <strong>' . $count . ' SSR markers</strong> associated with <strong> ' . count($features) . ' features</strong> in this organism.';
@@ -133,17 +136,7 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
         return;
       }
 
-      $header = [
-        'name' => 'Name',
-        'unique_name' => 'Unique Name',
-        'tripal_ssr_motif' => 'Motif',
-        'tripal_ssr_repeats' => 'Number of Repeats',
-        'tripal_ssr_forward_primer' => 'Forward Primer',
-        'tripal_ssr_forward_tm' => 'Forward Primer Tm',
-        'tripal_ssr_reverse_primer' => 'Reverse Primer',
-        'tripal_ssr_reverse_tm' => 'Reverse Primer Tm',
-        'tripal_ssr_product_size' => 'Product Size',
-      ];
+      $header = ['Key', 'Value'];
       $rows = [];
       foreach ($items as $item) {
         $info = $item['value'];
@@ -158,18 +151,17 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
         $r_tm = $info['tripal_ssr_reverse_tm'];
         $size = $info['tripal_ssr_product_size'];
 
-        $row = [
-          $name,
-          $uname,
-          $motif,
-          $repeats,
-          $forward,
-          $f_tm,
-          $reverse,
-          $r_tm,
-          $size,
+        $rows = [
+          ['Name', $name],
+          ['Unique Name', $uname],
+          ['Motif', $motif],
+          ['Number of Repeats', $repeats],
+          ['Forward Primer', $forward],
+          ['Forward Primer Tm', $f_tm],
+          ['Reverse Primer', $reverse],
+          ['Reverse Primer Tm', $r_tm],
+          ['Product Size', $size],
         ];
-        $rows[] = $row;
       }
 
       $element[0] = [
@@ -209,10 +201,12 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
    *   to the user.
    *
    */
-  public function settingsSummary($view_mode) {
+  public function settingsSummary($view_mode)
+  {
   }
 
-  public function tripal_ssr_get_associated_analyses($organism_id) {
+  public function tripal_ssr_get_associated_analyses($organism_id)
+  {
     $ssr_term = chado_get_cvterm(['id' => 'SO:0000289']);
     $query = db_select('chado.organism', 'o');
     $query->distinct();
@@ -225,7 +219,8 @@ class so__microsatellite_formatter extends ChadoFieldFormatter {
     return $query->execute()->fetchAll();
   }
 
-  private function render_ssr_analysis_table($results) {
+  private function render_ssr_analysis_table($results)
+  {
     $header = ['Analysis Name'];
     $rows = [];
     foreach ($results as $result) {
