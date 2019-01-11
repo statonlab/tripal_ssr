@@ -141,7 +141,6 @@ class so__microsatellite_formatter extends ChadoFieldFormatter
         $info = $item['value'];
         $row = [];
         $name = $info['name'];
-        $uname = $info['unique_name'];
         $motif = $info['tripal_ssr_motif'];
         $repeats = $info['tripal_ssr_repeats'];
         $forward = $info['tripal_ssr_forward_primer'];
@@ -152,7 +151,6 @@ class so__microsatellite_formatter extends ChadoFieldFormatter
 
         $rows = [
           ['<b>Name</b>', $name],
-          ['<b>Unique Name</b>', $uname],
           ['<b>Motif</b>', $motif],
           ['<b>Number of Repeats</b>', $repeats],
           ['<b>Forward Primer</b>', $forward],
