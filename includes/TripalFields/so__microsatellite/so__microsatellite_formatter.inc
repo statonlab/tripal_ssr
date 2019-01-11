@@ -136,7 +136,6 @@ class so__microsatellite_formatter extends ChadoFieldFormatter
         return;
       }
 
-      $header = ['Key', 'Value'];
       $rows = [];
       foreach ($items as $item) {
         $info = $item['value'];
@@ -152,21 +151,20 @@ class so__microsatellite_formatter extends ChadoFieldFormatter
         $size = $info['tripal_ssr_product_size'];
 
         $rows = [
-          ['Name', $name],
-          ['Unique Name', $uname],
-          ['Motif', $motif],
-          ['Number of Repeats', $repeats],
-          ['Forward Primer', $forward],
-          ['Forward Primer Tm', $f_tm],
-          ['Reverse Primer', $reverse],
-          ['Reverse Primer Tm', $r_tm],
-          ['Product Size', $size],
+          ['<b>Name</b>', $name],
+          ['<b>Unique Name</b>', $uname],
+          ['<b>Motif</b>', $motif],
+          ['<b>Number of Repeats</b>', $repeats],
+          ['<b>Forward Primer</b>', $forward],
+          ['<b>Forward Primer Tm</b>', $f_tm],
+          ['<b>Reverse Primer</b>', $reverse],
+          ['<b>Reverse Primer Tm</b>', $r_tm],
+          ['<b>Product Size</b>', $size],
         ];
       }
 
       $element[0] = [
         '#theme' => 'table',
-        '#header' => $header,
         "#rows" => $rows,
       ];
       return $element;
